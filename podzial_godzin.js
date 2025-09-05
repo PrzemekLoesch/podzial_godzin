@@ -1,1 +1,1 @@
-console.log('Podział godzin');
+console.log('Podział godzin ');
