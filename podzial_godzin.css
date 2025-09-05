@@ -1,0 +1,70 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: smaller;
+}
+
+.widok-tygodnia {
+    display: flex;
+    flex-direction: row;
+}
+
+.widok-dnia {
+    border-left: 1px solid lightgray;
+    background-color: lightgoldenrodyellow;
+    min-width: 150px;
+    max-width: 150px;
+}
+
+.tytul {
+    text-align: center;
+    border-bottom: 1px solid black;
+    height: 40px;
+    line-height: 40px;
+}
+
+.plan-dnia {
+
+}
+
+.siatka-godzin {
+    width: 60px;
+}
+
+.linia-godzin {
+    border-bottom: 1px solid lightgray;
+    width: 1116px;
+    height: 50px;
+    z-index: 1;
+    position: relative;
+}
+
+.panel {
+    display: grid;
+    grid-template-columns: 100px 1fr 20px;
+    height: min-content;
+    row-gap: 10px;
+    margin: 10px;
+
+}
+
+.strona {
+    display: flex;
+    width: 100%;
+}
+
+.uklad-strony {
+    display: grid;
+    grid-template-columns: max-content 300px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 50px;
+}
+
+input {
+    
+}
+
+select {
+    
+}
+

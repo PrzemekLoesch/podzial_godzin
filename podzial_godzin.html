@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Podział godzin</title>
+    <link rel="stylesheet" href="podzial_godzin.css">
+</head>
+
+<body>
+    <div class="strona">
+        <div class="uklad-strony">
+            <div class="widok-tygodnia">
+                <div class="siatka-godzin">
+                    <div class="tytul">Godziny</div>
+                    <div class="siatka-godzin">
+                        <div class="linia-godzin">6.00</div>
+                        <div class="linia-godzin">7.00</div>
+                        <div class="linia-godzin">8.00</div>
+                        <div class="linia-godzin">9.00</div>
+                        <div class="linia-godzin">10.00</div>
+                        <div class="linia-godzin">11.00</div>
+                        <div class="linia-godzin">12.00</div>
+                        <div class="linia-godzin">13.00</div>
+                        <div class="linia-godzin">14.00</div>
+                        <div class="linia-godzin">15.00</div>
+                        <div class="linia-godzin">16.00</div>
+                        <div class="linia-godzin">17.00</div>
+                        <div class="linia-godzin">18.00</div>
+                        <div class="linia-godzin">19.00</div>
+                        <div class="linia-godzin">20.00</div>
+                        <div class="linia-godzin">21.00</div>
+                    </div>
+                </div>
+                <div class="widok-dnia">
+                    <div class="tytul">Poniedziałek</div>
+                    <div class="plan-dnia"></div>
+                </div>
+                <div class="widok-dnia">
+                    <div class="tytul">Wtorek</div>
+                    <div class="plan-dnia"></div>
+                </div>
+                <div class="widok-dnia">
+                    <div class="tytul">Środa</div>
+                    <div class="plan-dnia"></div>
+                </div>
+                <div class="widok-dnia">
+                    <div class="tytul">Czwartek</div>
+                    <div class="plan-dnia"></div>
+                </div>
+                <div class="widok-dnia">
+                    <div class="tytul">Piątek</div>
+                    <div class="plan-dnia"></div>
+                </div>
+                <div class="widok-dnia">
+                    <div class="tytul">Sobota</div>
+                    <div class="plan-dnia"></div>
+                </div>
+                <div class="widok-dnia">
+                    <div class="tytul">Niedziela</div>
+                    <div class="plan-dnia"></div>
+                </div>
+            </div>
+            <div class="panel">
+                <div>Uczeń</div><select id="uczen"></select><button>+</button>
+                <div>Przedmiot</div><select id="przedmiot"></select><button>+</button>
+                <div>Dzień tygodnia</div>
+                    <select id="przedmiot">
+                        <option>Poniedziałek</option>
+                        <option>Wtorek</option>
+                        <option>Środa</option>
+                        <option>Czwartek</option>
+                        <option>Piątek</option>
+                        <option>Sobota</option>
+                        <option>Niedziela</option>
+                    </select>
+                <button>+</button>
+                <div>Początek lekcji</div><input id="poczatek"><div></div>
+                <div>Koniec lekcji</div><input id="koniec"><div></div>
+                <div></div><button>Dodaj lekcję</button><div></div>
+            </div>
+        </div>
+    </div>
+    <script src="podzial_godzin.js"></script>
+</body>
+
+</html>
