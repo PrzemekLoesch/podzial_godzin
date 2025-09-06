@@ -61,8 +61,8 @@
                 </div>
             </div>
             <div class="panel">
-                <div>Uczeń</div><select id="uczen"></select><button>+</button>
-                <div>Przedmiot</div><select id="przedmiot"></select><button>+</button>
+                <div>Uczeń</div><select id="uczen"></select><button id="dodaj_ucznia">+</button>
+                <div>Przedmiot</div><select id="przedmiot"></select><button id="dodaj_przedmiot">+</button>
                 <div>Dzień tygodnia</div>
                     <select id="przedmiot">
                         <option>Poniedziałek</option>
@@ -73,14 +73,47 @@
                         <option>Sobota</option>
                         <option>Niedziela</option>
                     </select>
-                <button>+</button>
-                <div>Początek lekcji</div><input id="poczatek"><div></div>
-                <div>Koniec lekcji</div><input id="koniec"><div></div>
-                <div></div><button>Dodaj lekcję</button><div></div>
+                <div></div>
+                <div>Początek zajęcia</div><input id="poczatek"><div></div>
+                <div>Koniec zajęcia</div><input id="koniec"><div></div>
+                <div></div><button id="dodaj_zajecie">Dodaj zajęcie</button><div></div>
             </div>
         </div>
     </div>
+
+    <template id="cialo-okna-modalnego">
+        <div class="tlo-okna-modalnego">
+            <div class="okno-modalne">
+                <div class="naglowek-okna-modalnego">
+                    <span class="tytul-okna-modalnego"></span>
+                    <button id="zamknij" type="button" class="przycisk-naglowka">×</button>
+                </div>
+                <div class="tresc-okna-modalnego"></div>
+                <div class="stopka-okna-modalnego">
+                    <button id="anuluj" type="button" class="przycisk">Anuluj</button>
+                    <button id="dodaj" type="button" class="przycisk">Dodaj</button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="formularz-przedmiotu">
+        <form class="formularz">
+            <div>Nazwa przedmiotu</div><input id="nazwa_przedmiotu">
+            <div>Skrót nazwy</div><input id="skrot_nazwy">
+            <div>Nauczyciel</div><input id="nauczyciel">
+        </form>
+    </template>
+
+    <template id="formularz-ucznia">
+        <form class="formularz">
+            <div>Imię ucznia</div><input id="imie_ucznia">
+            <div>Inicjały</div><input id="inicjaly_ucznia">
+        </form>
+    </template>
+
     <script src="podzial_godzin.js"></script>
+    <script src="okno_modalne.js"></script>
 </body>
 
 </html>
