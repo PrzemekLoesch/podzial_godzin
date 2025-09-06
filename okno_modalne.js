@@ -106,8 +106,8 @@ class COknoModalne {
     }
 
     wyslijDane() {
-        console.log('Kontroler: ', this.kontroler);
-        this.kontroler.odbierzDaneFormularza(this.nazwa_formularza);
+        var dane = Object.fromEntries(Array.from(this.element.querySelectorAll('input')).map(input => [input.id, input.value]));
+        this.kontroler.odbierzDaneFormularza(this.nazwa_formularza, dane);
         this.usunOkno();
     }
 
