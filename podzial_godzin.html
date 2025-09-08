@@ -31,50 +31,40 @@
                 </div>
                 <div class="widok-dnia">
                     <div class="tytul">Poniedziałek</div>
-                    <div class="plan-dnia"></div>
+                    <div class="plan-dnia" num="0"></div>
                 </div>
                 <div class="widok-dnia">
                     <div class="tytul">Wtorek</div>
-                    <div class="plan-dnia"></div>
+                    <div class="plan-dnia" num="1"></div>
                 </div>
                 <div class="widok-dnia">
                     <div class="tytul">Środa</div>
-                    <div class="plan-dnia"></div>
+                    <div class="plan-dnia" num="2"></div>
                 </div>
                 <div class="widok-dnia">
                     <div class="tytul">Czwartek</div>
-                    <div class="plan-dnia"></div>
+                    <div class="plan-dnia" num="3"></div>
                 </div>
                 <div class="widok-dnia">
                     <div class="tytul">Piątek</div>
-                    <div class="plan-dnia"></div>
+                    <div class="plan-dnia" num="4"></div>
                 </div>
                 <div class="widok-dnia">
                     <div class="tytul">Sobota</div>
-                    <div class="plan-dnia"></div>
+                    <div class="plan-dnia" num="5"></div>
                 </div>
                 <div class="widok-dnia">
                     <div class="tytul">Niedziela</div>
-                    <div class="plan-dnia"></div>
+                    <div class="plan-dnia" num="6"></div>
                 </div>
             </div>
             <div class="panel">
-                <div>Uczeń</div><select id="uczen"></select><button id="dodaj_ucznia">+</button>
-                <div>Przedmiot</div><select id="przedmiot"></select><button id="dodaj_przedmiot">+</button>
-                <div>Dzień tygodnia</div>
-                    <select id="dzien">
-                        <option value="0">Poniedziałek</option>
-                        <option value="1">Wtorek</option>
-                        <option value="2">Środa</option>
-                        <option value="3">Czwartek</option>
-                        <option value="4">Piątek</option>
-                        <option value="5">Sobota</option>
-                        <option value="6">Niedziela</option>
-                    </select>
-                <div></div>
-                <div>Początek zajęć</div><input id="poczatek"><div></div>
-                <div>Koniec zajęć</div><input id="koniec"><div></div>
-                <div></div><button id="dodaj_zajecie">Dodaj zajęcia</button><div></div>
+                <div>Lista uczniów:</div>
+                <div class="lista-uczniow"></div>
+                <button id="dodaj_ucznia">Dodaj ucznia...</button>
+                <div>Lista przedmiotów:</div>
+                <div class="lista-przedmiotow"></div>
+                <button id="dodaj_przedmiot">Dodaj przedmiot...</button>
             </div>
         </div>
     </div>
@@ -89,7 +79,7 @@
                 <div class="tresc-okna-modalnego"></div>
                 <div class="stopka-okna-modalnego">
                     <button id="anuluj" type="button" class="przycisk">Anuluj</button>
-                    <button id="dodaj" type="button" class="przycisk">Dodaj</button>
+                    <button id="zapisz" type="button" class="przycisk">Zapisz</button>
                 </div>
             </div>
         </div>
@@ -97,17 +87,37 @@
 
     <template id="formularz-przedmiotu">
         <form class="formularz">
-            <div>Nazwa przedmiotu</div><input id="nazwa_przedmiotu">
-            <div>Skrót nazwy</div><input id="skrot_nazwy">
+            <div>Nazwa przedmiotu</div><input id="nazwa" wymog=true>
+            <div>Skrót nazwy</div><input id="skrot">
             <div>Nauczyciel</div><input id="nauczyciel">
         </form>
     </template>
 
     <template id="formularz-ucznia">
         <form class="formularz">
-            <div>Imię ucznia</div><input id="imie_ucznia">
-            <div>Inicjały</div><input id="inicjaly_ucznia">
+            <div>Imię</div><input id="nazwa" wymog=true>
+            <div>Inicjały</div><input id="inicjaly">
         </form>
+    </template>
+
+    <template id="formularz-zajec">
+        <form class="formularz">
+            <div>Uczeń</div><select id="uczen" wymog=true></select>
+            <div>Przedmiot</div><select id="przedmiot" wymog=true></select>
+            <div>Początek</div><input id="poczatek" type="time" wymog=true>
+            <div>Koniec</div><input id="koniec" type="time" wymog=true>
+        </form>
+    </template>
+
+    <template id="wpis-ucznia">
+        <input type="checkbox">
+        <label></label>
+        <button>...</button>
+    </template>
+
+    <template id="wpis-przedmiotu">
+        <div></div>
+        <button>...</button>
     </template>
 
     <script src="podzial_godzin.js"></script>

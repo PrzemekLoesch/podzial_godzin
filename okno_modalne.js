@@ -1,10 +1,12 @@
 class COknoModalne {
 
-    constructor(nazwa_formularza, kontroler) {
+    constructor(kontroler, nazwa_formularza, id, dane, opcje) {
         
         // zapisz wskaźnik do kontrolera
         this.kontroler = kontroler;
         this.nazwa_formularza = nazwa_formularza;
+        this.dane = dane;
+        this.id = id;
 
         // zbuduj ciało okna z szablonu
         document.body.appendChild(document.querySelector('#cialo-okna-modalnego').content.cloneNode(true));
@@ -20,9 +22,31 @@ class COknoModalne {
         // włącz funkcję przycisków
         this.element.querySelector('#zamknij').addEventListener('click', () => this.usunOkno());
         this.element.querySelector('#anuluj').addEventListener('click', () => this.usunOkno());
-        this.element.querySelector('#dodaj').addEventListener('click', () => this.wyslijDane());
+        this.element.querySelector('#zapisz').addEventListener('click', () => this.wyslijDane());
 
+        // wypełnij pola select danymi
+        if (opcje) Object.keys(opcje).forEach(nazwa_pola => {
+            
+            // znajdź właściwe pole select
+            var select = this.element.querySelector(`#${nazwa_pola}`);
 
+            opcje[nazwa_pola].forEach((opcja, i) => {
+                var op = document.createElement('option');
+                op.innerHTML = opcja.nazwa;
+                op.value = i;
+                select.appendChild(op);
+            });
+        });
+
+        // jeśli podano dane wypełnij widgety danymi
+        if (dane) Array.from(this.element.querySelectorAll('input, select')).forEach(widget => widget.value = dane[widget.id] || '');
+        
+        // jeśli nie podano danych ustaw widgety select na brak wyboru
+        else Array.from(this.element.querySelectorAll('select')).forEach(widget => widget.value = '');
+
+        // przypisz event po zmianie
+        Array.from(this.element.querySelectorAll('input, select')).forEach(widget => widget.addEventListener('change', (e) => this.walidujWidget(e.target)));
+            
         // to wywołanie bez argumentów wpisuje na sztywno wymiary okna, żeby nie zmieniały się ona przy zmianie treści, ale użytkownik może zmienić go uchwytami
         this.inicjujWymiary();
         this.wysrodkuj();
@@ -80,34 +104,43 @@ class COknoModalne {
         }
     }
 
-    rozpocznijSkalowanie(e) {
-        document.onmouseup = e => this.zakonczSkalowanie(e);
-        document.onmousemove = e => this.skalujOkno(e);
-        this.skalowanie_aktywne = true;
-        this.startX = e.clientX;
-        this.startY = e.clientY;
-        this.startWidth = parseInt(window.getComputedStyle(this.element, null).getPropertyValue('width').slice(0,-2));
-        this.startHeight = parseInt(window.getComputedStyle(this.element, null).getPropertyValue('height').slice(0,-2));
-    }
-
-    zakonczSkalowanie() {
-        this.skalowanie_aktywne = false;
-        document.onmouseup = null;
-        document.onmousemove = null;
-    }
-
-    skalujOkno(e) {
-        if (this.skalowanie_aktywne) {
-            var szer = Math.max(this.startWidth + (e.clientX - this.startX) < 0 ? 0 : this.startWidth + (e.clientX - this.startX), this.min_szer);
-            var wys = Math.max(this.startHeight + (e.clientY - this.startY) < 0 ? 0 : this.startHeight + (e.clientY - this.startY), this.min_wys);
-            this.element.style.width = szer+'px';
-            this.element.style.height = wys+'px';
+    // ustawia lub usuwa stan błędu
+    walidujWidget(widget) {
+        if (widget.getAttribute('wymog') && !widget.value) {
+            widget.classList.add('blad');
+            return false;
+        }
+        else {
+            widget.classList.remove('blad');
+            return true;
         }
     }
 
+    // przekazuje dane z widgetów do właściciela
     wyslijDane() {
-        var dane = Object.fromEntries(Array.from(this.element.querySelectorAll('input')).map(input => [input.id, input.value]));
-        this.kontroler.odbierzDaneFormularza(this.nazwa_formularza, dane);
+
+        // założenie kompletności
+        var poprawnosc = true;
+        
+        // dane odczytane z widgetów
+        var dane = Object.fromEntries(Array.from(this.element.querySelectorAll('input, select')).map(widget => {
+            
+            // waliduj widget
+            if (!this.walidujWidget(widget)) poprawnosc = false;
+            
+            // dopisz klucz i wartość do słownika danych
+            return [widget.id, widget.value];
+        }));
+
+        if (!poprawnosc) return;
+        
+        // dopisz dane, których nie było w widgetach ale zostały podane przez właściciela
+        if (this.dane) Object.keys(this.dane).forEach(klucz => {if (!dane.hasOwnProperty(klucz)) dane[klucz] = this.dane[klucz]});
+        
+        // wyślij dane do właściciela formularza
+        this.kontroler.odbierzDaneFormularza(this.nazwa_formularza, this.id, dane);
+        
+        // skasuj instancję
         this.usunOkno();
     }
 

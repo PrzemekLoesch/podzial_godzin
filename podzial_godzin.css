@@ -10,7 +10,6 @@ body {
 
 .widok-dnia {
     border-left: 1px solid lightgray;
-    background-color: #f0f0f0;
     min-width: 150px;
     max-width: 150px;
     box-sizing: border-box;
@@ -24,7 +23,11 @@ body {
     line-height: 40px;
 }
 
-.plan-dnia {}
+.plan-dnia {
+    background-color: rgba(240, 240, 240, 0.4);
+    height: 840px;
+    position: relative;
+}
 
 .siatka-godzin {
     width: 60px;
@@ -34,19 +37,15 @@ body {
     border-bottom: 1px solid lightgray;
     width: 1110px;
     height: 60px;
-    z-index: 1;
     position: relative;
     box-sizing: border-box;
 }
 
 .panel {
-    display: grid;
-    grid-template-columns: 110px 1fr 20px;
-    height: min-content;
-    row-gap: 10px;
-    column-gap: 5px;
+    display: flex;
+    flex-direction: column;
     margin: 10px;
-
+    row-gap: 10px;
 }
 
 .strona {
@@ -60,15 +59,20 @@ body {
     margin-left: auto;
     margin-right: auto;
     margin-top: 50px;
+    column-gap: 20px;
 }
 
 input {
-    border: 1px solid gray;
+    border: 1px solid lightgray;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 select {
     background: none;
-    border: 1px solid gray;
+    border: 1px solid lightgray;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 button {
@@ -126,7 +130,7 @@ button {
 }
 
 .tlo-okna-modalnego {
-    background-color: rgba(0,0,0,0.4);
+    background-color: rgba(0, 0, 0, 0.4);
     position: fixed;
     left: 0;
     top: 0;
@@ -160,7 +164,7 @@ button {
 }
 
 .blok-zajec {
-    width: 150px;
+    width: 100%;
     background-color: lightyellow;
     border: 1px solid gray;
     z-index: 2;
@@ -169,4 +173,19 @@ button {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.lista-uczniow {
+    display: grid;
+    grid-template-columns: 40px 1fr 30px;
+}
+
+.lista-przedmiotow {
+    display: grid;
+    grid-template-columns: 1fr 30px;
+    padding-left: 20px;
+}
+
+.blad {
+    border-color: red;
 }

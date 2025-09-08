@@ -1,16 +1,17 @@
 class CMenadzerPodzialuGodzin {
     constructor() {
-        this.przypiszZdarzenia();
-        this.wybor_ucznia = document.querySelector('#uczen');
-        this.wybor_przedmiotu = document.querySelector('#przedmiot');
-        this.wybor_dnia = document.querySelector('#dzien');
-        this.poczatek = document.querySelector('#poczatek');
-        this.koniec = document.querySelector('#koniec');
         
+        // włącz eventy
+        this.przypiszZdarzenia();
 
+        // pojemniki na dane
         this.uczniowie = [];
         this.przedmioty = [];
         this.zajecia = [];
+
+        // elementy interfejsu
+        this.lista_uczniow = document.querySelector('.lista-uczniow');
+        this.lista_przedmiotow = document.querySelector('.lista-przedmiotow');
     }
 
     przypiszZdarzenia() {
@@ -21,77 +22,255 @@ class CMenadzerPodzialuGodzin {
         // dodanie przedmiotu
         document.getElementById('dodaj_przedmiot').addEventListener('click', () => this.otworzOknoPrzedmiotu());
 
-        // dodanie zajęcia
-        document.getElementById('dodaj_zajecie').addEventListener('click', () => this.dodajZajecie());
+        // plansza z rozkładem zajęć i jej eventy
+        var kalendarz = document.querySelector('.widok-tygodnia');
+        kalendarz.addEventListener('click', e => this.rozpocznijEdycje(e));
+        kalendarz.addEventListener('mousedown', e => this.rozpocznijPrzeciaganie(e));
+
+        // zapis pliku danych
+        // document.getElementById('pobierz-dane').addEventListener('click', () => this.pobierzPlikDanych());
+
+        // zapis pliku danych
+        // document.getElementById('wczytaj-dane').addEventListener('click', () => this.wczytajPlikDanych());
     }
 
-    otworzOknoPrzedmiotu() {
-        var okno = new COknoModalne('formularz-przedmiotu', this);
+    otworzOknoPrzedmiotu(id) {
+        var okno = new COknoModalne(this, 'formularz-przedmiotu', id, this.przedmioty[id]);
     }
 
-    otworzOknoUcznia() {
-        var okno = new COknoModalne('formularz-ucznia', this);
+    otworzOknoUcznia(id) {
+        var okno = new COknoModalne(this, 'formularz-ucznia', id, this.uczniowie[id]);
     }
 
-    odbierzDaneFormularza(nazwa_formularza, dane) {
-        if (nazwa_formularza == 'formularz-przedmiotu') this.dodajPrzedmiot(dane);
-        else if (nazwa_formularza == 'formularz-ucznia') this.dodajUcznia(dane);
-    }
+    otworzOknoZajec(id, dzien, poczatek, koniec) {
 
-    dodajPrzedmiot(dane) {
-        // dodaj opcję do pola select
-        var opcja = document.createElement('option');
-        opcja.innerHTML = dane.nazwa_przedmiotu;
-        if (dane.skrot_nazwy) opcja.innerHTML += ` (${dane.skrot_nazwy})`;
-        opcja.value = this.wybor_przedmiotu.options.length;
-        this.wybor_przedmiotu.appendChild(opcja);
-
-        // dodaj przedmiot do listy przedmiotów
-        this.przedmioty.push({nazwa: dane.nazwa_przedmiotu, skrot: dane.skrot_nazwy, nauczyciel: dane.nauczyciel});
-    }
-
-    dodajUcznia(dane) {
-        // dodaj opcję do pola select
-        var opcja = document.createElement('option');
-        opcja.innerHTML = dane.imie_ucznia;
-        if (dane.inicjaly_ucznia) opcja.innerHTML += ` (${dane.inicjaly_ucznia})`;
-        opcja.value = this.wybor_ucznia.options.length;
-        this.wybor_ucznia.appendChild(opcja);
-
-        // dodaj ucznia do listy uczniów
-        this.uczniowie.push({imie: dane.imie_ucznia, inicjaly: dane.inicjaly_ucznia});
-    }
-
-    dodajZajecie() {
+        // jeśli to edycja istniejących zajęć - przypisz dane z obiektu
+        if (id) var dane = this.zajecia[id];
         
-        // odczytaj wartości wybrane w panelu
-        var uczen = this.wartoscSelect(this.wybor_ucznia);
-        var przedmiot = this.wartoscSelect(this.wybor_przedmiotu);
-        var dzien = this.wartoscSelect(this.wybor_dnia);
-        var poczatek = this.poczatek.value;
-        var koniec = this.koniec.value;
+        // jeśli nowe zajęcia - ustaw wartości, które są znane
+        else var dane = {
+            uczen: null,
+            przedmiot: null,
+            dzien: dzien,
+            poczatek: this.pozycjaNaCzas(poczatek),
+            koniec: this.pozycjaNaCzas(koniec)
+        };
 
-        // jeśli brakuje jakiegokolwiek wyboru - wróć
-        if (!uczen || !przedmiot || !dzien || !poczatek || !koniec) return;
+        var okno = new COknoModalne(this, 'formularz-zajec', id, dane, {przedmiot: this.przedmioty, uczen: this.uczniowie});
+    }
 
-        // oblicz godziny i minuty początku i końca
-        var p_godz = parseInt(poczatek.split(':')[0]);
-        var p_min = parseInt(poczatek.split(':')[1]) || 0;
-        var k_godz = parseInt(koniec.split(':')[0]);
-        var k_min = parseInt(koniec.split(':')[1]) || 0;
+    odbierzDaneFormularza(nazwa_formularza, id, dane) {
+        if (nazwa_formularza == 'formularz-przedmiotu') this.zapiszPrzedmiot(id, dane);
+        else if (nazwa_formularza == 'formularz-ucznia') this.zapiszUcznia(id, dane);
+        else if (nazwa_formularza == 'formularz-zajec') this.zapiszZajecia(id, dane);
+    }
 
-        var zajecia = document.createElement('div');
-        zajecia.className = 'blok-zajec';
-        zajecia.style.marginTop = `${(p_godz-7) * 60 + p_min}px`;
-        zajecia.style.height = `${(k_godz-p_godz)*60+(k_min-p_min)}px`;
-        zajecia.innerHTML = this.przedmioty[przedmiot].nazwa;
-        
-        document.querySelectorAll('.widok-dnia')[dzien].appendChild(zajecia);
+    zapiszPrzedmiot(id, dane) {
+
+        // edycja przedmiotu
+        if (id !== undefined) {
+            // aktualizacja danych
+            this.przedmioty[id] = dane;
+            
+            // aktualizacja etykiety
+            this.lista_przedmiotow.querySelector(`#przedmiot_${id}`).innerHTML = dane.nazwa;
+        }
+
+        // dodanie nowego przedmiotu
+        else {
+            // dodaj ucznia do listy uczniów
+            var id = this.przedmioty.push(dane) - 1;
+
+            // dodaj pozycję listy ul
+            var wpis = document.querySelector("#wpis-przedmiotu").content.cloneNode(true);
+            var div = wpis.querySelector('div');
+            div.innerHTML = dane.nazwa;
+            div.id = `przedmiot_${id}`;
+            wpis.querySelector('button').addEventListener('click', () => this.otworzOknoPrzedmiotu(id));
+            this.lista_przedmiotow.appendChild(wpis);
+        }
+    }
+
+    zapiszUcznia(id, dane) {
+
+        // edycja ucznia
+        if (id !== undefined) {
+            // aktualizacja danych
+            this.uczniowie[id] = dane;
+            
+            // aktualizacja etykiety
+            this.lista_uczniow.querySelector(`[for='uczen_${id}']`).innerHTML = dane.nazwa;
+        }
+
+        // dodanie ucznia
+        else {
+            // dodaj ucznia do listy uczniów
+            var id = this.uczniowie.push(dane) - 1;
+
+            // dodaj pozycję listy ul
+            var wpis = document.querySelector("#wpis-ucznia").content.cloneNode(true);
+            var label = wpis.querySelector('label');
+            label.innerHTML = dane.nazwa;
+            label.setAttribute('for', `uczen_${id}`);
+            var input = wpis.querySelector('input');
+            input.id = `uczen_${id}`;
+            input.addEventListener('change', () => this.przelaczWidocznoscUcznia(id));
+            input.checked = true;
+            wpis.querySelector('button').addEventListener('click', () => this.otworzOknoUcznia(id));
+            this.lista_uczniow.appendChild(wpis);
+        }
+    }
+
+    zapiszZajecia(id, dane) {
+
+        // musi być co najmniej id albo dane
+        if (!id && !dane) return;
+
+        // nowe zajęcia
+        if (!id) {
+            
+            // id - indeks zajęć
+            id = this.zajecia.push(dane) - 1;
+            
+            var zajecia = document.createElement('div');
+            var gora = this.czasNaPozycje(dane.poczatek);
+            var wysokosc = this.czasNaPozycje(dane.koniec) - gora;
+
+            zajecia.className = 'blok-zajec';
+            zajecia.style.top = gora + 'px';
+            zajecia.style.height = wysokosc + 'px';
+            zajecia.innerHTML = this.przedmioty[dane.przedmiot].nazwa;
+            zajecia.id = `zajecia_${id}`;
+            
+            document.querySelectorAll('.plan-dnia')[dane.dzien].appendChild(zajecia);
+        }
+
+        // edycja zajęć
+        else {
+            var zajecia = document.getElementById(`zajecia_${id}`);
+            var gora = this.czasNaPozycje(dane.poczatek);
+            var wysokosc = this.czasNaPozycje(dane.koniec) - gora;
+
+            zajecia.style.top = gora + 'px';
+            zajecia.style.height = wysokosc + 'px';
+            zajecia.innerHTML = this.przedmioty[dane.przedmiot].nazwa;
+        }
+    }
+
+    async pobierzPlikDanych() {
+        const result = await window.showSaveFilePicker({ suggestedName: 'Plan zajęć.json' })
+        console.log(result);
+    }
+
+    async wczytajPlikDanych() {
+        const result = await window.showOpenFilePicker({ multiple: false });
+        console.log(result);
+    }
+
+    przelaczWidocznoscUcznia(id) {
+        console.log('Zmiana widoczności ucznia: ', id);
     }
 
     wartoscSelect(select) {
         var index = select.selectedIndex;
         return index != -1 ? select.options[index].value : undefined;
+    }
+
+    rozpocznijEdycje(e) {
+
+        console.log('Rozpocznij edycję');
+        
+        // jeśli rozpocząto tryb przeciągania i rzeczywiście przeciągnięto
+        if (this.tryb_przeciagania && this.przeciagnieto) return;
+        else this.zakonczPrzeciaganie(e);
+
+        // edycja istniejących zajęć
+        if (e.target.className == 'blok-zajec') this.otworzOknoZajec(e.target.id.split('_')[1]);
+
+        // dodanie zajęć
+        else if (e.target.className == 'plan-dnia') {
+            var rect = e.target.getBoundingClientRect();
+            var poczatek = e.clientY - rect.top;
+            this.otworzOknoZajec(null, e.target.getAttribute('num'), poczatek, null);
+        }
+    }
+
+    rozpocznijPrzeciaganie(e) {
+
+        console.log('Rozpocznij przeciąganie');
+        
+        // od tego mmntu adresuj wszystkie eventy dotyczące ruchu myszy do tej klasy
+        document.onmouseup = e => this.zakonczPrzeciaganie(e);
+        document.onmousemove = e => this.przeciagaj(e);
+        
+        if (e.target.className == 'plan-dnia') {
+            this.tryb_przeciagania = 'tworzenie';
+            var rect = e.target.getBoundingClientRect();
+            this.poczatek_przeciagania = e.clientY - rect.top;
+        }
+
+        else if (e.target.className == 'blok-zajec') {
+            this.przeciagany_element = e.target;
+            this.tryb_przeciagania = 'przesuwanie';
+            console.log('Przeciąganie elementu: ', e.target);
+            this.pozycja_poczatkowa = this.czasNaPozycje(this.zajecia[e.target.id.split('_')[1]].poczatek);
+        }
+    }
+
+    // obsłuż przeciąganie myszą rozpocząte na planszy kalndarza
+    przeciagaj(e) {
+
+        console.log('Przeciągaj');
+
+        this.przeciagnieto = true;
+
+        // jeśli przeciąganie polega na zmienie pozycji zajęć
+        if (this.tryb_przeciagania == 'przesuwanie') {
+            var rect = this.przeciagany_element.getBoundingClientRect();
+            var koniec = e.clientY - rect.top;
+            var delta = koniec - this.poczatek_przeciagania;
+            this.przeciagany_element.style.top = (this.pozycja_poczatkowa + delta) + 'px';
+        }
+    }
+
+    // zakończ akcję przeciągania
+    zakonczPrzeciaganie(e) {
+
+        console.log('Zakończ przeciąganie');
+
+        // zwolnij przekazywanie eventów myszy do tej klasy
+        document.onmouseup = null;
+        document.onmousemove = null;
+        if (!this.przeciagnieto) {
+            this.tryb_przeciagania = null;
+            this.przeciagany_element = null;
+            return;
+        }
+        
+        var rect = e.target.getBoundingClientRect();
+        var koniec = e.clientY - rect.top;
+
+        // jeśli przeciąganie polegało na tworzeniu
+        if (e.target.className == 'plan-dnia' && this.tryb_przeciagania == 'tworzenie') {
+            this.otworzOknoZajec(null, e.target.getAttribute('num'), this.poczatek_przeciagania, koniec, null);
+        }
+    }
+
+    // konwertuje pozycję (odległość w minutach od godziny 7.00) na string oznaczający czas w formacie 'hh:mm'
+    pozycjaNaCzas(pozycja) {
+        if (!pozycja) return undefined;
+        var minuty = pozycja % 60;
+        var godziny = 7 + Math.floor(pozycja / 60);
+        var czas = `${godziny < 10 ? '0' + godziny : godziny}:${minuty < 10 ? '0' + minuty : minuty}`;
+        return czas;
+    }
+
+    // konwertuje string czasu 'hh:mm" na pozycję tj. odległość w minutach od godziny 7.00
+    czasNaPozycje(czas) {
+        if (!czas) return undefined;
+        var [godziny, minuty] = czas.split(':');
+        var pozycja = (parseInt(godziny) - 7) * 60 + parseInt(minuty);
+        return pozycja;
     }
 }
 
