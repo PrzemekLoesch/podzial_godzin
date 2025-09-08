@@ -211,9 +211,11 @@ class CMenadzerPodzialuGodzin {
 
         else if (e.target.className == 'blok-zajec') {
             this.przeciagany_element = e.target;
+            this.id_przeciaganego_bloku = e.target.id.split('_')[1];
             this.tryb_przeciagania = 'przesuwanie';
+            this.poczatek_przeciagania = e.clientY;
             console.log('Przeciąganie elementu: ', e.target);
-            this.pozycja_poczatkowa = this.czasNaPozycje(this.zajecia[e.target.id.split('_')[1]].poczatek);
+            this.pozycja_poczatkowa = this.czasNaPozycje(this.zajecia[this.id_przeciaganego_bloku].poczatek);
         }
     }
 
@@ -226,9 +228,7 @@ class CMenadzerPodzialuGodzin {
 
         // jeśli przeciąganie polega na zmienie pozycji zajęć
         if (this.tryb_przeciagania == 'przesuwanie') {
-            var rect = this.przeciagany_element.getBoundingClientRect();
-            var koniec = e.clientY - rect.top;
-            var delta = koniec - this.poczatek_przeciagania;
+            var delta = e.clientY - this.poczatek_przeciagania;
             this.przeciagany_element.style.top = (this.pozycja_poczatkowa + delta) + 'px';
         }
     }
@@ -251,8 +251,12 @@ class CMenadzerPodzialuGodzin {
         var koniec = e.clientY - rect.top;
 
         // jeśli przeciąganie polegało na tworzeniu
-        if (e.target.className == 'plan-dnia' && this.tryb_przeciagania == 'tworzenie') {
+        if (this.tryb_przeciagania == 'tworzenie') {
             this.otworzOknoZajec(null, e.target.getAttribute('num'), this.poczatek_przeciagania, koniec, null);
+        }
+
+        else if (this.tryb_przeciagania == 'przesuwanie') {
+            this.zajecia[this.id_przeciaganego_bloku].poczatek = this.pozycjaNaCzas(parseInt(this.przeciagany_element.style.top.slice(0,-2)));
         }
     }
 

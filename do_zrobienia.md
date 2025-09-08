@@ -26,3 +26,8 @@
 
 # 8.09.2025
 - [ ] przy przesuwaniu korzystać z bezwzględnych współrzędnych myszy a nie z e.target
+- [ ] skok przesuwania co 5 minut (5 pixeli)
+- [ ] blokada możliwości przesuwania poza zakres kalendarza
+- [ ] gripy do przeciągania góry i dołu zajęcia
+- [ ] wskazywanie czasu początku i końca zajęcia
+- [ ] przywrócić możliwość edycji po kliknięciu na blok zajęć
