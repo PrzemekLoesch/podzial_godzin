@@ -28,10 +28,13 @@ class CMenadzerPodzialuGodzin {
         kalendarz.addEventListener('mousedown', e => this.rozpocznijPrzeciaganie(e));
 
         // zapis pliku danych
-        // document.getElementById('pobierz-dane').addEventListener('click', () => this.pobierzPlikDanych());
+        document.getElementById('pobierz_dane').addEventListener('click', () => this.pobierzPlikDanych());
 
-        // zapis pliku danych
-        // document.getElementById('wczytaj-dane').addEventListener('click', () => this.wczytajPlikDanych());
+        // odczyt danych z pliku
+        document.getElementById('wczytaj_dane').addEventListener('click', () => document.getElementById('zrodlo_danych').click());
+
+        // wczytanie plku
+        document.getElementById('zrodlo_danych').addEventListener('change', (e) => this.wczytajPlikDanych(e.target.files[0]));
     }
 
     otworzOknoPrzedmiotu(id) {
@@ -158,13 +161,50 @@ class CMenadzerPodzialuGodzin {
     }
 
     async pobierzPlikDanych() {
-        const result = await window.showSaveFilePicker({ suggestedName: 'Plan zajęć.json' })
-        console.log(result);
+
+        var blob = new Blob([JSON.stringify({uczniowie: this.uczniowie, przedmioty: this.przedmioty, zajecia: this.zajecia})], { type: 'text/plain' });
+        var blobURL = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobURL;
+        a.download = 'podzial_godzin.json';
+        a.style.display = 'none';
+        document.body.append(a);
+        // Programmatically click the element.
+        a.click();
+        // Revoke the blob URL and remove the element.
+        setTimeout(() => {
+            URL.revokeObjectURL(blobURL);
+            a.remove();
+        }, 1000);
+    };
+
+    wczytajPlikDanych(plik) {
+        
+        if (plik) {
+            var reader = new FileReader();
+            reader.onload = (evt) => this.odtworzWidokzDanych(JSON.parse(evt.target.result));
+            reader.onerror = (evt) => document.getElementById("zawartosc_pliku").innerHTML = "Błąd odczytu pliku";
+            reader.readAsText(plik, "UTF-8");
+        }
     }
 
-    async wczytajPlikDanych() {
-        const result = await window.showOpenFilePicker({ multiple: false });
-        console.log(result);
+    odtworzWidokzDanych(dane) {
+        if (dane.uczniowie) {
+            this.uczniowie = [];
+            this.lista_uczniow.innerHTML = '';
+            dane.uczniowie.forEach(uczen => this.zapiszUcznia(undefined, uczen));
+        }
+
+        if (dane.przedmioty) {
+            this.przedmioty = [];
+            this.lista_przedmiotow.innerHTML = '';
+            dane.przedmioty.forEach(przedmiot => this.zapiszPrzedmiot(undefined, przedmiot));
+        }
+
+        if (dane.zajecia) {
+            this.zajecia = [];
+            dane.przedmioty.forEach(zajecia => this.zapiszPrzedmiot(undefined, zajecia));
+        }
     }
 
     przelaczWidocznoscUcznia(id) {

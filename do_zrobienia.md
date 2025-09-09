@@ -18,16 +18,22 @@
 - [x] szablon formularza edycji zajęcia: przedmiot, uczeń, początek, koniec
 - [x] przekazywać do formularza dane opcji do wypełnienia pól select
 - [x] oczytywać czas na podstawie punktu kliknięcia na kalendarzu
-- [ ] obsługa przeciągania myszką na kalendarzu
+- [x] obsługa przeciągania myszką na kalendarzu
 - [x] oznaczyć wymagane pola atrybutem 'wymagane'
 - [x] ustawiać niewybrane pozycje select jako puste
-- [ ] zapisywać dane w json (pobranie pliku) oraz odczyt danych z przesłanego pliku
+- [x] zapisywać dane w json (pobranie pliku) oraz odczyt danych z przesłanego pliku
 - [ ] zaokrąglać wartości godzin wskazywane kursorem do 5 minut
 
 # 8.09.2025
-- [ ] przy przesuwaniu korzystać z bezwzględnych współrzędnych myszy a nie z e.target
+- [x] przy przesuwaniu korzystać z bezwzględnych współrzędnych myszy a nie z e.target
 - [ ] skok przesuwania co 5 minut (5 pixeli)
 - [ ] blokada możliwości przesuwania poza zakres kalendarza
 - [ ] gripy do przeciągania góry i dołu zajęcia
 - [ ] wskazywanie czasu początku i końca zajęcia
 - [ ] przywrócić możliwość edycji po kliknięciu na blok zajęć
+- [x] odczytywać dane z pliku
+
+# 9.09.2025
+- [ ] usuwać z widoku zajęcia po wczytaniu danych z pliku
+- [ ] rozmieszczać prawidłowo nowe zajęcia po wczytaniu pliku
+- [ ] zapewnić integralność id danych po zapisie i wczytaniu pliku
