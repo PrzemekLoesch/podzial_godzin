@@ -7,7 +7,10 @@ class CMenadzerPodzialuGodzin {
         // pojemniki na dane
         this.uczniowie = [];
         this.przedmioty = [];
+        this.nauczyciele = [];
+        this.lokalizacje = [];
         this.zajecia = [];
+
 
         // elementy interfejsu
         this.lista_uczniow = document.querySelector('.lista-uczniow');
@@ -21,6 +24,12 @@ class CMenadzerPodzialuGodzin {
 
         // dodanie przedmiotu
         document.getElementById('dodaj_przedmiot').addEventListener('click', () => this.otworzOknoPrzedmiotu());
+
+        // dodanie nauczyciela
+        document.getElementById('dodaj_nauczyciela').addEventListener('click', () => this.otworzOknoNauczyciela());
+
+        // dodanie lokalizacji
+        document.getElementById('dodaj_lokalizacje').addEventListener('click', () => this.otworzOknoLokalizacji());
 
         // plansza z rozkładem zajęć i jej eventy
         var kalendarz = document.querySelector('.widok-tygodnia');
@@ -45,6 +54,14 @@ class CMenadzerPodzialuGodzin {
         var okno = new COknoModalne(this, 'formularz-ucznia', id, this.uczniowie[id]);
     }
 
+    otworzOknoNauczyciela(id) {
+        var okno = new COknoModalne(this, 'formularz-nauczyciela', id, this.nauczyciele[id]);
+    }
+
+    otworzOknoLokalizacji(id) {
+        var okno = new COknoModalne(this, 'formularz-lokalizacji', id, this.lokalizacje[id]);
+    }
+
     otworzOknoZajec(id, dzien, poczatek, koniec) {
 
         // jeśli to edycja istniejących zajęć - przypisz dane z obiektu
@@ -66,6 +83,8 @@ class CMenadzerPodzialuGodzin {
         if (nazwa_formularza == 'formularz-przedmiotu') this.zapiszPrzedmiot(id, dane);
         else if (nazwa_formularza == 'formularz-ucznia') this.zapiszUcznia(id, dane);
         else if (nazwa_formularza == 'formularz-zajec') this.zapiszZajecia(id, dane);
+        else if (nazwa_formularza == 'formularz-nauczyciela') this.zapiszNauczyciela(id, dane);
+        else if (nazwa_formularza == 'formularz-lokalizacji') this.zapiszLokalizacje(id, dane);
     }
 
     zapiszPrzedmiot(id, dane) {
@@ -84,7 +103,7 @@ class CMenadzerPodzialuGodzin {
             // dodaj ucznia do listy uczniów
             var id = this.przedmioty.push(dane) - 1;
 
-            // dodaj pozycję listy ul
+            // dodaj pozycję listy
             var wpis = document.querySelector("#wpis-przedmiotu").content.cloneNode(true);
             var div = wpis.querySelector('div');
             div.innerHTML = dane.nazwa;
@@ -93,6 +112,33 @@ class CMenadzerPodzialuGodzin {
             this.lista_przedmiotow.appendChild(wpis);
         }
     }
+
+    zapiszLokalizcje(id, dane) {
+
+        // edycja przedmiotu
+        if (id !== undefined) {
+            // aktualizacja danych
+            this.lokalizacje[id] = dane;
+            
+            // aktualizacja etykiety
+            this.lista_lokalizacji.querySelector(`#lokalizacja_${id}`).innerHTML = dane.nazwa;
+        }
+
+        // dodanie nowego przedmiotu
+        else {
+            // dodaj ucznia do listy uczniów
+            var id = this.lokalizacje.push(dane) - 1;
+
+            // dodaj pozycję listy
+            var wpis = document.querySelector("#wpis-lokalizacji").content.cloneNode(true);
+            var div = wpis.querySelector('div');
+            div.innerHTML = dane.nazwa;
+            div.id = `przedmiot_${id}`;
+            wpis.querySelector('button').addEventListener('click', () => this.otworzOknoPrzedmiotu(id));
+            this.lista_przedmiotow.appendChild(wpis);
+        }
+    }
+
 
     zapiszUcznia(id, dane) {
 
@@ -110,7 +156,7 @@ class CMenadzerPodzialuGodzin {
             // dodaj ucznia do listy uczniów
             var id = this.uczniowie.push(dane) - 1;
 
-            // dodaj pozycję listy ul
+            // dodaj pozycję listy
             var wpis = document.querySelector("#wpis-ucznia").content.cloneNode(true);
             var label = wpis.querySelector('label');
             label.innerHTML = dane.nazwa;
@@ -183,28 +229,30 @@ class CMenadzerPodzialuGodzin {
         if (plik) {
             var reader = new FileReader();
             reader.onload = (evt) => this.odtworzWidokzDanych(JSON.parse(evt.target.result));
-            reader.onerror = (evt) => document.getElementById("zawartosc_pliku").innerHTML = "Błąd odczytu pliku";
+            // reader.onerror = (evt) => document.getElementById("").innerHTML = "Błąd odczytu pliku";
             reader.readAsText(plik, "UTF-8");
         }
     }
 
     odtworzWidokzDanych(dane) {
-        if (dane.uczniowie) {
-            this.uczniowie = [];
-            this.lista_uczniow.innerHTML = '';
-            dane.uczniowie.forEach(uczen => this.zapiszUcznia(undefined, uczen));
-        }
+        this.uczniowie = [];
+        this.lista_uczniow.innerHTML = '';
+        dane.uczniowie.forEach(uczen => this.zapiszUcznia(undefined, uczen));
 
-        if (dane.przedmioty) {
-            this.przedmioty = [];
-            this.lista_przedmiotow.innerHTML = '';
-            dane.przedmioty.forEach(przedmiot => this.zapiszPrzedmiot(undefined, przedmiot));
-        }
+        this.przedmioty = [];
+        this.lista_przedmiotow.innerHTML = '';
+        dane.przedmioty.forEach(przedmiot => this.zapiszPrzedmiot(undefined, przedmiot));
 
-        if (dane.zajecia) {
-            this.zajecia = [];
-            dane.przedmioty.forEach(zajecia => this.zapiszPrzedmiot(undefined, zajecia));
-        }
+        this.nauczyciele = [];
+        this.lista_nauczycieli.innerHTML = '';
+        dane.nauczyciele.forEach(nauczyciel => this.zapiszNauczyciela(undefined, nauczyciel));
+
+        this.lokalizacje = [];
+        this.lista_lokalizacji.innerHTML = '';
+        dane.lokalizacje.forEach(lokalizacja => this.zapiszNauczyciela(undefined, lokalizacja));
+
+        this.zajecia = [];
+        dane.zajecia.forEach(zajecia => this.zapiszZajecia(undefined, zajecia));
     }
 
     przelaczWidocznoscUcznia(id) {

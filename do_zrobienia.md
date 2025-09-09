@@ -37,3 +37,5 @@
 - [ ] usuwać z widoku zajęcia po wczytaniu danych z pliku
 - [ ] rozmieszczać prawidłowo nowe zajęcia po wczytaniu pliku
 - [ ] zapewnić integralność id danych po zapisie i wczytaniu pliku
+- [ ] wyseparować nauczycieli do osobnego obiektu (ten sam przedmiot mogą prowadzić rózni nauczyciele)
+- [ ] dodać lokalizację (sala, miejsce itp.)
