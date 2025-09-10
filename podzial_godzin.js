@@ -4,32 +4,14 @@ class CMenadzerPodzialuGodzin {
         // włącz eventy
         this.przypiszZdarzenia();
 
-        // pojemniki na dane
-        this.uczniowie = [];
-        this.przedmioty = [];
-        this.nauczyciele = [];
-        this.lokalizacje = [];
-        this.zajecia = [];
-
-
-        // elementy interfejsu
-        this.lista_uczniow = document.querySelector('.lista-uczniow');
-        this.lista_przedmiotow = document.querySelector('.lista-przedmiotow');
+        // resetuj dane
+        this.resetujDane();
     }
 
     przypiszZdarzenia() {
 
-        // dodanie ucznia
-        document.getElementById('dodaj_ucznia').addEventListener('click', () => this.otworzOknoUcznia());
-
-        // dodanie przedmiotu
-        document.getElementById('dodaj_przedmiot').addEventListener('click', () => this.otworzOknoPrzedmiotu());
-
-        // dodanie nauczyciela
-        document.getElementById('dodaj_nauczyciela').addEventListener('click', () => this.otworzOknoNauczyciela());
-
-        // dodanie lokalizacji
-        document.getElementById('dodaj_lokalizacje').addEventListener('click', () => this.otworzOknoLokalizacji());
+        // przyciski dodania uczniów, przedmiotów, nauczycieli i lokalizacji
+        Array.from(document.querySelectorAll('button[id^="dodaj_"]')).forEach(button => button.addEventListener('click', (e) => this.otworzOkno(e.target.id.split('_')[1])));
 
         // plansza z rozkładem zajęć i jej eventy
         var kalendarz = document.querySelector('.widok-tygodnia');
@@ -46,26 +28,27 @@ class CMenadzerPodzialuGodzin {
         document.getElementById('zrodlo_danych').addEventListener('change', (e) => this.wczytajPlikDanych(e.target.files[0]));
     }
 
-    otworzOknoPrzedmiotu(id) {
-        var okno = new COknoModalne(this, 'formularz-przedmiotu', id, this.przedmioty[id]);
-    }
+    resetujDane() {
 
-    otworzOknoUcznia(id) {
-        var okno = new COknoModalne(this, 'formularz-ucznia', id, this.uczniowie[id]);
-    }
+        // pojemniki na dane
+        this.uczniowie = [];
+        this.przedmioty = [];
+        this.nauczyciele = [];
+        this.lokalizacje = [];
+        this.zajecia = [];
 
-    otworzOknoNauczyciela(id) {
-        var okno = new COknoModalne(this, 'formularz-nauczyciela', id, this.nauczyciele[id]);
-    }
+        // usunięcie wszytkich bloków zajęć z widoku kalendarza
+        Array.from(document.querySelectorAll('div[id^="blok_zajec_"]')).forEach(element => element.remove());
+    }   
 
-    otworzOknoLokalizacji(id) {
-        var okno = new COknoModalne(this, 'formularz-lokalizacji', id, this.lokalizacje[id]);
+    otworzOkno(nazwa_danych, id) {
+        var okno = new COknoModalne(this, nazwa_danych, id, this.przedmioty[id]);
     }
 
     otworzOknoZajec(id, dzien, poczatek, koniec) {
 
         // jeśli to edycja istniejących zajęć - przypisz dane z obiektu
-        if (id) var dane = this.zajecia[id];
+        if (id !== undefined) var dane = this.zajecia[id];
         
         // jeśli nowe zajęcia - ustaw wartości, które są znane
         else var dane = {
@@ -76,133 +59,64 @@ class CMenadzerPodzialuGodzin {
             koniec: this.pozycjaNaCzas(koniec)
         };
 
-        var okno = new COknoModalne(this, 'formularz-zajec', id, dane, {przedmiot: this.przedmioty, uczen: this.uczniowie});
+        var okno = new COknoModalne(this, 'zajecia', id, dane, {przedmiot: this.przedmioty, uczen: this.uczniowie});
     }
 
-    odbierzDaneFormularza(nazwa_formularza, id, dane) {
-        if (nazwa_formularza == 'formularz-przedmiotu') this.zapiszPrzedmiot(id, dane);
-        else if (nazwa_formularza == 'formularz-ucznia') this.zapiszUcznia(id, dane);
-        else if (nazwa_formularza == 'formularz-zajec') this.zapiszZajecia(id, dane);
-        else if (nazwa_formularza == 'formularz-nauczyciela') this.zapiszNauczyciela(id, dane);
-        else if (nazwa_formularza == 'formularz-lokalizacji') this.zapiszLokalizacje(id, dane);
-    }
+    zapiszDaneFormularza(nazwa_danych, id, dane) {
 
-    zapiszPrzedmiot(id, dane) {
-
-        // edycja przedmiotu
-        if (id !== undefined) {
-            // aktualizacja danych
-            this.przedmioty[id] = dane;
-            
-            // aktualizacja etykiety
-            this.lista_przedmiotow.querySelector(`#przedmiot_${id}`).innerHTML = dane.nazwa;
+        if (nazwa_danych == 'zajecia') {
+            this.zapiszZajecia(id, dane);
+            return;
         }
 
-        // dodanie nowego przedmiotu
+        // edycja istniejącego rekordu
+        if (id !== undefined) {
+            // aktualizacja danych
+            this[nazwa_danych][id] = dane;
+            
+            // aktualizacja etykiety
+            document.querySelector(`#${nazwa_danych}_${id}`).innerHTML = dane.nazwa;
+        }
+
+        // dodanie nowego rekordu
         else {
-            // dodaj ucznia do listy uczniów
-            var id = this.przedmioty.push(dane) - 1;
+            // dodaj rekord do list
+            var id = this[nazwa_danych].push(dane) - 1;
 
             // dodaj pozycję listy
-            var wpis = document.querySelector("#wpis-przedmiotu").content.cloneNode(true);
+            var wpis = document.querySelector("#wpis").content.cloneNode(true);
             var div = wpis.querySelector('div');
             div.innerHTML = dane.nazwa;
-            div.id = `przedmiot_${id}`;
-            wpis.querySelector('button').addEventListener('click', () => this.otworzOknoPrzedmiotu(id));
-            this.lista_przedmiotow.appendChild(wpis);
-        }
-    }
-
-    zapiszLokalizcje(id, dane) {
-
-        // edycja przedmiotu
-        if (id !== undefined) {
-            // aktualizacja danych
-            this.lokalizacje[id] = dane;
-            
-            // aktualizacja etykiety
-            this.lista_lokalizacji.querySelector(`#lokalizacja_${id}`).innerHTML = dane.nazwa;
-        }
-
-        // dodanie nowego przedmiotu
-        else {
-            // dodaj ucznia do listy uczniów
-            var id = this.lokalizacje.push(dane) - 1;
-
-            // dodaj pozycję listy
-            var wpis = document.querySelector("#wpis-lokalizacji").content.cloneNode(true);
-            var div = wpis.querySelector('div');
-            div.innerHTML = dane.nazwa;
-            div.id = `przedmiot_${id}`;
-            wpis.querySelector('button').addEventListener('click', () => this.otworzOknoPrzedmiotu(id));
-            this.lista_przedmiotow.appendChild(wpis);
-        }
-    }
-
-
-    zapiszUcznia(id, dane) {
-
-        // edycja ucznia
-        if (id !== undefined) {
-            // aktualizacja danych
-            this.uczniowie[id] = dane;
-            
-            // aktualizacja etykiety
-            this.lista_uczniow.querySelector(`[for='uczen_${id}']`).innerHTML = dane.nazwa;
-        }
-
-        // dodanie ucznia
-        else {
-            // dodaj ucznia do listy uczniów
-            var id = this.uczniowie.push(dane) - 1;
-
-            // dodaj pozycję listy
-            var wpis = document.querySelector("#wpis-ucznia").content.cloneNode(true);
-            var label = wpis.querySelector('label');
-            label.innerHTML = dane.nazwa;
-            label.setAttribute('for', `uczen_${id}`);
-            var input = wpis.querySelector('input');
-            input.id = `uczen_${id}`;
-            input.addEventListener('change', () => this.przelaczWidocznoscUcznia(id));
-            input.checked = true;
-            wpis.querySelector('button').addEventListener('click', () => this.otworzOknoUcznia(id));
-            this.lista_uczniow.appendChild(wpis);
+            div.id = `${nazwa_danych}_${id}`;
+            wpis.querySelector('button').addEventListener('click', () => this.otworzOkno(nazwa_danych, id));
+            document.querySelector(`#lista_${nazwa_danych}`).appendChild(wpis);
         }
     }
 
     zapiszZajecia(id, dane) {
 
-        // musi być co najmniej id albo dane
-        if (!id && !dane) return;
+        // edycjas istniejących zajęć
+        if (id) {
+            var zajecia = document.getElementById(`blok_zajec_${id}`);
+            var gora = this.czasNaPozycje(dane.poczatek);
+            var wysokosc = this.czasNaPozycje(dane.koniec) - gora;
+            zajecia.style.top = gora + 'px';
+            zajecia.style.height = wysokosc + 'px';
+            zajecia.innerHTML = this.przedmioty[dane.przedmiot].nazwa;
+        }
 
-        // nowe zajęcia
-        if (!id) {
-            
-            // id - indeks zajęć
+        // dodanie nowych zajęć
+        else {
             id = this.zajecia.push(dane) - 1;
-            
             var zajecia = document.createElement('div');
             var gora = this.czasNaPozycje(dane.poczatek);
             var wysokosc = this.czasNaPozycje(dane.koniec) - gora;
-
             zajecia.className = 'blok-zajec';
             zajecia.style.top = gora + 'px';
             zajecia.style.height = wysokosc + 'px';
             zajecia.innerHTML = this.przedmioty[dane.przedmiot].nazwa;
-            zajecia.id = `zajecia_${id}`;
-            
+            zajecia.id = `blok_zajec_${id}`;
             document.querySelectorAll('.plan-dnia')[dane.dzien].appendChild(zajecia);
-        }
-
-        // edycja zajęć
-        else {
-            var zajecia = document.getElementById(`zajecia_${id}`);
-            var gora = this.czasNaPozycje(dane.poczatek);
-            var wysokosc = this.czasNaPozycje(dane.koniec) - gora;
-
-            zajecia.style.top = gora + 'px';
-            zajecia.style.height = wysokosc + 'px';
-            zajecia.innerHTML = this.przedmioty[dane.przedmiot].nazwa;
         }
     }
 
@@ -235,28 +149,22 @@ class CMenadzerPodzialuGodzin {
     }
 
     odtworzWidokzDanych(dane) {
-        this.uczniowie = [];
-        this.lista_uczniow.innerHTML = '';
-        dane.uczniowie.forEach(uczen => this.zapiszUcznia(undefined, uczen));
+        
+        // wyczyść obiekty, listy i wodok kalendarza
+        this.resetujDane();
+        
+        Object.keys(dane).forEach(nazwa_danych => {
+            if (nazwa_danych == 'zajecia') {
+                dane.zajecia.forEach(zajecia => this.zapiszZajecia(undefined, zajecia));
+            }
 
-        this.przedmioty = [];
-        this.lista_przedmiotow.innerHTML = '';
-        dane.przedmioty.forEach(przedmiot => this.zapiszPrzedmiot(undefined, przedmiot));
-
-        this.nauczyciele = [];
-        this.lista_nauczycieli.innerHTML = '';
-        dane.nauczyciele.forEach(nauczyciel => this.zapiszNauczyciela(undefined, nauczyciel));
-
-        this.lokalizacje = [];
-        this.lista_lokalizacji.innerHTML = '';
-        dane.lokalizacje.forEach(lokalizacja => this.zapiszNauczyciela(undefined, lokalizacja));
-
-        this.zajecia = [];
-        dane.zajecia.forEach(zajecia => this.zapiszZajecia(undefined, zajecia));
-    }
-
-    przelaczWidocznoscUcznia(id) {
-        console.log('Zmiana widoczności ucznia: ', id);
+            else {
+                this[nazwa_danych] = [];
+                console.log(`#lista_${nazwa_danych}`);
+                document.getElementById(`lista_${nazwa_danych}`).innerHTML = '';
+                dane[nazwa_danych].forEach(rekord => this.zapiszDaneFormularza(nazwa_danych, undefined, rekord));
+            }
+        });
     }
 
     wartoscSelect(select) {
@@ -299,7 +207,7 @@ class CMenadzerPodzialuGodzin {
 
         else if (e.target.className == 'blok-zajec') {
             this.przeciagany_element = e.target;
-            this.id_przeciaganego_bloku = e.target.id.split('_')[1];
+            this.id_przeciaganego_bloku = e.target.id.split('_')[2];
             this.tryb_przeciagania = 'przesuwanie';
             this.poczatek_przeciagania = e.clientY;
             console.log('Przeciąganie elementu: ', e.target);

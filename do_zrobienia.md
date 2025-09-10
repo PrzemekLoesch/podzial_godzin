@@ -37,5 +37,9 @@
 - [ ] usuwać z widoku zajęcia po wczytaniu danych z pliku
 - [ ] rozmieszczać prawidłowo nowe zajęcia po wczytaniu pliku
 - [ ] zapewnić integralność id danych po zapisie i wczytaniu pliku
-- [ ] wyseparować nauczycieli do osobnego obiektu (ten sam przedmiot mogą prowadzić rózni nauczyciele)
-- [ ] dodać lokalizację (sala, miejsce itp.)
+- [x] wyseparować nauczycieli do osobnego obiektu (ten sam przedmiot mogą prowadzić rózni nauczyciele)
+- [x] dodać lokalizację (sala, miejsce itp.)
+- [x] indeksy rekordów zaczynać od 1 - ułatwi ew. późniejszy zapis do db - najprościej zainicjować tablice wartością i usunąć ją
+
+# 10.09.2025
+- [ ] rozwiązać poprawne rozróżnianie akcji edycji od akcji przeciągania - flagę przeciągania ustawiać dopiwro w evencie move

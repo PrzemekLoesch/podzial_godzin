@@ -1,19 +1,19 @@
 class COknoModalne {
 
-    constructor(kontroler, nazwa_formularza, id, dane, opcje) {
-        
+    constructor(kontroler, nazwa_danych, id, dane, opcje) {
+
         // zapisz wskaźnik do kontrolera
         this.kontroler = kontroler;
-        this.nazwa_formularza = nazwa_formularza;
+        this.nazwa_danych = nazwa_danych;
         this.dane = dane;
         this.id = id;
 
         // zbuduj ciało okna z szablonu
-        document.body.appendChild(document.querySelector('#cialo-okna-modalnego').content.cloneNode(true));
+        document.body.appendChild(document.querySelector('#cialo_okna_modalnego').content.cloneNode(true));
         this.element = document.querySelector('div[class="okno-modalne"]');
 
         // dodaj do pola treści formularz przedmiotu
-        this.element.querySelector('.tresc-okna-modalnego').appendChild(document.querySelector(`#${nazwa_formularza}`).content.cloneNode(true));
+        this.element.querySelector('.tresc-okna-modalnego').appendChild(document.querySelector(`#formularz_${nazwa_danych}`).content.cloneNode(true));
 
         // włącz przeciąganie okna za pomocą nagłówka i skalowanie za pomocą narożnika
         this.naglowek = this.element.querySelector('.naglowek-okna-modalnego');
@@ -138,7 +138,7 @@ class COknoModalne {
         if (this.dane) Object.keys(this.dane).forEach(klucz => {if (!dane.hasOwnProperty(klucz)) dane[klucz] = this.dane[klucz]});
         
         // wyślij dane do właściciela formularza
-        this.kontroler.odbierzDaneFormularza(this.nazwa_formularza, this.id, dane);
+        this.kontroler.zapiszDaneFormularza(this.nazwa_danych, this.id, dane);
         
         // skasuj instancję
         this.usunOkno();

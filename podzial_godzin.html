@@ -60,16 +60,16 @@
             </div>
             <div class="panel">
                 <div>Uczniowie:</div>
-                <div class="lista-uczniow"></div>
-                <button id="dodaj_ucznia">Dodaj ucznia...</button>
+                <div id="lista_uczniowie" class="lista-rekordow"></div>
+                <button id="dodaj_uczniowie">Dodaj ucznia...</button>
                 <div>Przedmioty:</div>
-                <div class="lista-przedmiotow"></div>
-                <button id="dodaj_przedmiot">Dodaj przedmiot...</button>
+                <div id="lista_przedmioty" class="lista-rekordow"></div>
+                <button id="dodaj_przedmioty">Dodaj przedmiot...</button>
                 <div>Nauczyciele:</div>
-                <div class="lista-nauczycieli"></div>
-                <button id="dodaj_nauczyciela">Dodaj nauczyciela...</button>
+                <div id="lista_nauczyciele" class="lista-rekordow"></div>
+                <button id="dodaj_nauczyciele">Dodaj nauczyciela...</button>
                 <div>Lokalizacje:</div>
-                <div class="lista-lokalizacji"></div>
+                <div id="lista_lokalizacje" class="lista-rekordow"></div>
                 <button id="dodaj_lokalizacje">Dodaj lokalizacje...</button>
                 <div>Obsługa plików:</div>
                 <button id="pobierz_dane">Pobierz plik z danymi...</button>
@@ -79,7 +79,7 @@
         </div>
     </div>
 
-    <template id="cialo-okna-modalnego">
+    <template id="cialo_okna_modalnego">
         <div class="tlo-okna-modalnego">
             <div class="okno-modalne">
                 <div class="naglowek-okna-modalnego">
@@ -95,35 +95,35 @@
         </div>
     </template>
 
-    <template id="formularz-przedmiotu">
+    <template id="formularz_przedmioty">
         <form class="formularz">
             <div>Nazwa przedmiotu</div><input id="nazwa" wymog=true>
             <div>Skrót nazwy</div><input id="skrot">
         </form>
     </template>
 
-    <template id="formularz-ucznia">
+    <template id="formularz_uczniowie">
         <form class="formularz">
             <div>Uczeń</div><input id="nazwa" wymog=true>
             <div>Inicjały</div><input id="skrot">
         </form>
     </template>
 
-    <template id="formularz-nauczyciela">
+    <template id="formularz_nauczyciele">
         <form class="formularz">
             <div>Nauczyciel</div><input id="nazwa" wymog=true>
             <div>Inicjały</div><input id="skrot">
         </form>
     </template>
 
-    <template id="formularz-lokalizacji">
+    <template id="formularz_lokalizacje">
         <form class="formularz">
             <div>Lokalizacja (sala, obiekt itp.)</div><input id="nazwa" wymog=true>
             <div>Skrót nazwy</div><input id="skrot">
         </form>
     </template>
 
-    <template id="formularz-zajec">
+    <template id="formularz_zajecia">
         <form class="formularz">
             <div>Uczeń</div><select id="uczen" wymog=true></select>
             <div>Przedmiot</div><select id="przedmiot" wymog=true></select>
@@ -134,13 +134,7 @@
         </form>
     </template>
 
-    <template id="wpis-ucznia">
-        <input type="checkbox">
-        <label></label>
-        <button>...</button>
-    </template>
-
-    <template id="wpis-uniwersalny">
+    <template id="wpis">
         <div></div>
         <button>...</button>
     </template>

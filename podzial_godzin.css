@@ -175,12 +175,7 @@ button {
     align-items: center;
 }
 
-.lista-uczniow {
-    display: grid;
-    grid-template-columns: 40px 1fr 30px;
-}
-
-.lista-przedmiotow {
+.lista-rekordow {
     display: grid;
     grid-template-columns: 1fr 30px;
     padding-left: 20px;
