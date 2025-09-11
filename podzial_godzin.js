@@ -15,8 +15,8 @@ class CMenadzerPodzialuGodzin {
 
         // plansza z rozkładem zajęć i jej eventy
         var kalendarz = document.querySelector('.widok-tygodnia');
-        kalendarz.addEventListener('click', e => this.rozpocznijEdycje(e));
-        kalendarz.addEventListener('mousedown', e => this.rozpocznijPrzeciaganie(e));
+        kalendarz.addEventListener('click', e => this.obsluzKliniecie(e));
+        kalendarz.addEventListener('mousedown', e => this.obsluzMouseDown(e));
 
         // zapis pliku danych
         document.getElementById('pobierz_dane').addEventListener('click', () => this.pobierzPlikDanych());
@@ -26,6 +26,8 @@ class CMenadzerPodzialuGodzin {
 
         // wczytanie plku
         document.getElementById('zrodlo_danych').addEventListener('change', (e) => this.wczytajPlikDanych(e.target.files[0]));
+
+        this.stan_kursora = {};
     }
 
     resetujDane() {
@@ -42,7 +44,7 @@ class CMenadzerPodzialuGodzin {
     }   
 
     otworzOkno(nazwa_danych, id) {
-        var okno = new COknoModalne(this, nazwa_danych, id, this.przedmioty[id]);
+        var okno = new COknoModalne(this, nazwa_danych, id, this[nazwa_danych][id]);
     }
 
     otworzOknoZajec(id, dzien, poczatek, koniec) {
@@ -55,9 +57,11 @@ class CMenadzerPodzialuGodzin {
             uczen: null,
             przedmiot: null,
             dzien: dzien,
-            poczatek: this.pozycjaNaCzas(poczatek),
-            koniec: this.pozycjaNaCzas(koniec)
+            poczatek: poczatek,
+            koniec: koniec
         };
+
+        console.log('Dane: ', dane);
 
         var okno = new COknoModalne(this, 'zajecia', id, dane, {przedmiot: this.przedmioty, uczen: this.uczniowie});
     }
@@ -122,32 +126,47 @@ class CMenadzerPodzialuGodzin {
 
     async pobierzPlikDanych() {
 
-        var blob = new Blob([JSON.stringify({uczniowie: this.uczniowie, przedmioty: this.przedmioty, zajecia: this.zajecia})], { type: 'text/plain' });
+        // blob z danymi
+        var blob = new Blob([JSON.stringify({
+            uczniowie: this.uczniowie,
+            przedmioty: this.przedmioty,
+            nauczyciele: this.nauczyciele,
+            lokalizacje: this.lokalizacje,
+            zajecia: this.zajecia
+        })], { type: 'text/plain' });
+        
+        // url
         var blobURL = URL.createObjectURL(blob);
+        
+        // element a
         const a = document.createElement('a');
         a.href = blobURL;
         a.download = 'podzial_godzin.json';
         a.style.display = 'none';
         document.body.append(a);
-        // Programmatically click the element.
+        
+        // wywołaj event click - powoduje pobranie elementu
         a.click();
-        // Revoke the blob URL and remove the element.
+        
+        // usuń blob
         setTimeout(() => {
             URL.revokeObjectURL(blobURL);
             a.remove();
         }, 1000);
     };
 
+    // otwiera wybrany plik
     wczytajPlikDanych(plik) {
         
         if (plik) {
             var reader = new FileReader();
-            reader.onload = (evt) => this.odtworzWidokzDanych(JSON.parse(evt.target.result));
-            // reader.onerror = (evt) => document.getElementById("").innerHTML = "Błąd odczytu pliku";
+            reader.onload = (e) => this.odtworzWidokzDanych(JSON.parse(e.target.result));
+            reader.onerror = (e) => alert('Błąd odczytu pliku');
             reader.readAsText(plik, "UTF-8");
         }
     }
 
+    // odbudowuje interfejs - wypełnia dnymi z wybranego pliku
     odtworzWidokzDanych(dane) {
         
         // wyczyść obiekty, listy i wodok kalendarza
@@ -159,101 +178,132 @@ class CMenadzerPodzialuGodzin {
             }
 
             else {
-                this[nazwa_danych] = [];
-                console.log(`#lista_${nazwa_danych}`);
                 document.getElementById(`lista_${nazwa_danych}`).innerHTML = '';
                 dane[nazwa_danych].forEach(rekord => this.zapiszDaneFormularza(nazwa_danych, undefined, rekord));
             }
         });
     }
 
+    // odczytuje wartość wybranej opcji z widgetu select
     wartoscSelect(select) {
         var index = select.selectedIndex;
         return index != -1 ? select.options[index].value : undefined;
     }
 
-    rozpocznijEdycje(e) {
+    
+    // rozpoczyna edycję elementu kalendarza
+    obsluzKliniecie(e) {
 
-        console.log('Rozpocznij edycję');
-        
-        // jeśli rozpocząto tryb przeciągania i rzeczywiście przeciągnięto
-        if (this.tryb_przeciagania && this.przeciagnieto) return;
-        else this.zakonczPrzeciaganie(e);
+        console.log('click');
+        console.log('Stan kursora: ', this.stan_kursora);
+        console.log('Target: ', e.target);
+
+        // jeśli rozpocząto tryb przeciągania i rzeczywiście przeciągnięto ne rób nic - metoda obsluzMouseUp zajmie się dodaniem zajęć
+        if (this.stan_kursora.przeciagnieto) return;
 
         // edycja istniejących zajęć
-        if (e.target.className == 'blok-zajec') this.otworzOknoZajec(e.target.id.split('_')[1]);
+        if (e.target.classList.contains('blok-zajec')) this.otworzOknoZajec(e.target.id.split('_')[1]);
 
         // dodanie zajęć
-        else if (e.target.className == 'plan-dnia') {
+        else if (e.target.classList.contains('plan-dnia')) {
             var rect = e.target.getBoundingClientRect();
             var poczatek = e.clientY - rect.top;
-            this.otworzOknoZajec(null, e.target.getAttribute('num'), poczatek, null);
+            this.otworzOknoZajec(null, e.target.getAttribute('num'), this.pozycjaNaCzas(poczatek), null);
         }
+
+        // zeruj stan kursora
+        this.stan_kursora = {};
     }
 
-    rozpocznijPrzeciaganie(e) {
+    obsluzMouseDown(e) {
 
-        console.log('Rozpocznij przeciąganie');
-        
+        console.log('mousedown');
+       
         // od tego mmntu adresuj wszystkie eventy dotyczące ruchu myszy do tej klasy
-        document.onmouseup = e => this.zakonczPrzeciaganie(e);
-        document.onmousemove = e => this.przeciagaj(e);
-        
-        if (e.target.className == 'plan-dnia') {
-            this.tryb_przeciagania = 'tworzenie';
-            var rect = e.target.getBoundingClientRect();
-            this.poczatek_przeciagania = e.clientY - rect.top;
+        document.onmouseup = e => this.obsluzMouseUp(e);
+        document.onmousemove = e => this.obsluzMouseMove(e);
+
+        // zarejestruj dane naciśnietego elementu
+        this.stan_kursora.element = e.target;
+        this.stan_kursora.poczatek_przeciagania = e.clientY;
+        this.stan_kursora.przeciagnieto = false;
+        if (this.stan_kursora.element.classList.contains('blok-zajec')) {
+            this.stan_kursora.pozycja_poczatkowa_zajec = parseInt(e.target.style.top.slice(0,-2));
+        }
+        if (e.target.classList.contains('uchwyt-gorny') || e.target.classList.contains('uchwyt-dolny')) {
+            this.stan_kursora.pozycja_poczatkowa_zajec = parseInt(e.target.parentNode.style.top.slice(0,-2));
+            this.stan_kursora.wysokosc_poczatkowa_zajec = parseInt(e.target.parentNode.style.height.slice(0,-2));
         }
 
-        else if (e.target.className == 'blok-zajec') {
-            this.przeciagany_element = e.target;
-            this.id_przeciaganego_bloku = e.target.id.split('_')[2];
-            this.tryb_przeciagania = 'przesuwanie';
-            this.poczatek_przeciagania = e.clientY;
-            console.log('Przeciąganie elementu: ', e.target);
-            this.pozycja_poczatkowa = this.czasNaPozycje(this.zajecia[this.id_przeciaganego_bloku].poczatek);
-        }
+        console.log('Stan kursora: ', this.stan_kursora);
     }
 
     // obsłuż przeciąganie myszą rozpocząte na planszy kalndarza
-    przeciagaj(e) {
+    obsluzMouseMove(e) {
 
-        console.log('Przeciągaj');
+        console.log('move');
+        
+        this.stan_kursora.przeciagnieto = true;
+        var delta = e.clientY - this.stan_kursora.poczatek_przeciagania;
+        if (this.stan_kursora.element.classList.contains('blok-zajec')) {
 
-        this.przeciagnieto = true;
+        }
+        else if (this.stan_kursora.element.classList.contains('plan-dnia')) {
 
-        // jeśli przeciąganie polega na zmienie pozycji zajęć
-        if (this.tryb_przeciagania == 'przesuwanie') {
-            var delta = e.clientY - this.poczatek_przeciagania;
-            this.przeciagany_element.style.top = (this.pozycja_poczatkowa + delta) + 'px';
+        }
+        else if (this.stan_kursora.element.classList.contains('uchwyt-gorny')) {
+
+        }
+        else if (this.stan_kursora.element.classList.contains('uchwyt-dolny')) {
+
         }
     }
 
     // zakończ akcję przeciągania
-    zakonczPrzeciaganie(e) {
+    obsluzMouseUp(e) {
 
-        console.log('Zakończ przeciąganie');
+        console.log('mouseup');
 
         // zwolnij przekazywanie eventów myszy do tej klasy
         document.onmouseup = null;
         document.onmousemove = null;
-        if (!this.przeciagnieto) {
-            this.tryb_przeciagania = null;
-            this.przeciagany_element = null;
-            return;
+
+        // jeśli nastąpiło przesunięcie myszy po mouse down
+        if (this.stan_kursora.przeciagnieto) {
+
+            // tworzenie zajęcia na tle planu dnia
+            if (this.stan_kursora.element.classList.contains('plan-dnia')) {
+                var poczatek = this.pozycjaNaCzas(this.stan_kursora.poczatek_przeciagania);
+                var koniec = this.pozycjaNaCzas(e.clientY);
+                this.otworzOknoZajec(undefined, this.stan_kursora.element.getAttribute('num'), poczatek, koniec);
+            }
+
+            // przesuwanie istniejących zajęć
+            if (this.stan_kursora.element.classList.contains('plan-dnia')) {
+
+            }
+
+            // zmiana górnego położenia zajęć
+            if (this.stan_kursora.element.classList.contains('uchwyt-gorny')) {
+
+            }
+
+            // zmiana górnego położenia zajęć
+            if (this.stan_kursora.element.classList.contains('uchwyt-dolny')) {
+
+            }
         }
         
-        var rect = e.target.getBoundingClientRect();
-        var koniec = e.clientY - rect.top;
-
+        /*
         // jeśli przeciąganie polegało na tworzeniu
         if (this.tryb_przeciagania == 'tworzenie') {
-            this.otworzOknoZajec(null, e.target.getAttribute('num'), this.poczatek_przeciagania, koniec, null);
+            this.otworzOknoZajec(undefined, e.target.getAttribute('num'), this.poczatek_przeciagania, koniec);
         }
 
         else if (this.tryb_przeciagania == 'przesuwanie') {
             this.zajecia[this.id_przeciaganego_bloku].poczatek = this.pozycjaNaCzas(parseInt(this.przeciagany_element.style.top.slice(0,-2)));
         }
+        */
     }
 
     // konwertuje pozycję (odległość w minutach od godziny 7.00) na string oznaczający czas w formacie 'hh:mm'

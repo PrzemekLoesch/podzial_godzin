@@ -77,10 +77,12 @@ select {
 
 button {
     border: none;
-    background: no-repeat;
-    color: blue;
+    background: rgb(0, 100, 160);
     cursor: pointer;
     font-weight: bold;
+    margin: 1px;
+    color: white;
+    border-radius: 3px;
 }
 
 .okno-modalne {
