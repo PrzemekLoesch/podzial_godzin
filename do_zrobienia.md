@@ -34,12 +34,15 @@
 - [x] odczytywać dane z pliku
 
 # 9.09.2025
-- [ ] usuwać z widoku zajęcia po wczytaniu danych z pliku
+- [x] usuwać z widoku zajęcia po wczytaniu danych z pliku
 - [ ] rozmieszczać prawidłowo nowe zajęcia po wczytaniu pliku
-- [ ] zapewnić integralność id danych po zapisie i wczytaniu pliku
+- [x] zapewnić integralność id danych po zapisie i wczytaniu pliku
 - [x] wyseparować nauczycieli do osobnego obiektu (ten sam przedmiot mogą prowadzić rózni nauczyciele)
 - [x] dodać lokalizację (sala, miejsce itp.)
 - [x] indeksy rekordów zaczynać od 1 - ułatwi ew. późniejszy zapis do db - najprościej zainicjować tablice wartością i usunąć ją
 
 # 10.09.2025
-- [ ] rozwiązać poprawne rozróżnianie akcji edycji od akcji przeciągania - flagę przeciągania ustawiać dopiwro w evencie move
+- [x] rozwiązać poprawne rozróżnianie akcji edycji od akcji przeciągania - flagę przeciągania ustawiać dopiwro w evencie move
+
+# 11.09.20215
+- [ ] wyświetlanie pozostałych danych na bloku zajęć w polu dnia - zaobaczyć jak to wygląda na vulcanie i innych

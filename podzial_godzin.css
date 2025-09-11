@@ -179,7 +179,7 @@ button {
 
 .lista-rekordow {
     display: grid;
-    grid-template-columns: 1fr 30px;
+    grid-template-columns: 1fr 26px;
     padding-left: 20px;
 }
 

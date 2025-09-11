@@ -194,15 +194,11 @@ class CMenadzerPodzialuGodzin {
     // rozpoczyna edycję elementu kalendarza
     obsluzKliniecie(e) {
 
-        console.log('click');
-        console.log('Stan kursora: ', this.stan_kursora);
-        console.log('Target: ', e.target);
-
         // jeśli rozpocząto tryb przeciągania i rzeczywiście przeciągnięto ne rób nic - metoda obsluzMouseUp zajmie się dodaniem zajęć
         if (this.stan_kursora.przeciagnieto) return;
 
         // edycja istniejących zajęć
-        if (e.target.classList.contains('blok-zajec')) this.otworzOknoZajec(e.target.id.split('_')[1]);
+        if (e.target.classList.contains('blok-zajec')) this.otworzOknoZajec(e.target.id.split('_')[2]);
 
         // dodanie zajęć
         else if (e.target.classList.contains('plan-dnia')) {
