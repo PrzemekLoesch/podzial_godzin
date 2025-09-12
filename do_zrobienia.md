@@ -30,7 +30,7 @@
 - [ ] blokada możliwości przesuwania poza zakres kalendarza
 - [ ] gripy do przeciągania góry i dołu zajęcia
 - [ ] wskazywanie czasu początku i końca zajęcia
-- [ ] przywrócić możliwość edycji po kliknięciu na blok zajęć
+- [x] przywrócić możliwość edycji po kliknięciu na blok zajęć
 - [x] odczytywać dane z pliku
 
 # 9.09.2025
@@ -44,5 +44,12 @@
 # 10.09.2025
 - [x] rozwiązać poprawne rozróżnianie akcji edycji od akcji przeciągania - flagę przeciągania ustawiać dopiwro w evencie move
 
-# 11.09.20215
+# 11.09.2025
 - [ ] wyświetlanie pozostałych danych na bloku zajęć w polu dnia - zaobaczyć jak to wygląda na vulcanie i innych
+- [x] skorygować prawidłową pozycję Y odczytaną przy przeciąganiu po plane dnia
+- [ ] blok zajęć wstawiać na podstawie template, w obsluzMouseDown rozpoznawać również kliknięcia na klasach skladowych
+
+# 12.09.2025
+- [ ] w czesie przeciągania po planie dnia wyświetlać tymczasowy div
+- [x] zapamiętywać nazwę klasy, której dotyczy event myszy w obsluzMouseDown
+- [ ] zaprojektować wygląd bloku zajęć
