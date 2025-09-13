@@ -140,28 +140,38 @@ class CMenadzerPodzialuGodzin {
                 id = this.dane.zajecia.wolne_id;
                 this.dane.zajecia.wolne_id ++;
             }
+           
             this.dane.zajecia.rekordy[id] = dane;
             
-            // skopiuj szablon bloku zajęć
-            var blok_zajec = document.querySelector("#blok_zajec").content.cloneNode(true);
-
-            // ustaw parametry nowego bloku
-            blok_zajec.querySelector('.blok-przedmiot').innerHTML = this.dane.przedmioty.rekordy[dane.przedmiot].nazwa;
-            blok_zajec.querySelector('.blok-poczatek').innerHTML = dane.poczatek;
-            blok_zajec.querySelector('.blok-koniec').innerHTML = dane.koniec;
-            blok_zajec.querySelector('.blok-lokalizacja').innerHTML = dane.lokalizacja; // ? this.lokalizacje[dane.lokalizacja].nazwa;
-            blok_zajec.querySelector('.blok-nauczyciel').innerHTML = dane.nauczyciel; // ? this.lokalizacje[dane.lokalizacja].nazwa;
-            var gora = this.czasNaPozycje(dane.poczatek);
-            var wysokosc = this.czasNaPozycje(dane.koniec) - gora;
-           
-            // dodaj blok zajęć do struktury dom
-            var element_dnia = document.querySelector(`.plan-dnia[num='${dane.dzien}']`);
-            element_dnia.appendChild(blok_zajec);
-            blok_zajec = element_dnia.querySelector('.blok-zajec:not([id])');
-            blok_zajec.id = `blok_zajec_${id}`;
-            blok_zajec.style.top = gora + 'px';
-            blok_zajec.style.height = wysokosc + 'px';
+            
         }
+    }
+
+    utworzBlokZajec(dane) {
+        
+        // skopiuj szablon bloku zajęć
+        var blok_zajec = document.querySelector("#blok_zajec").content.cloneNode(true);
+
+        // dodaj blok zajęć do struktury dom
+        var element_dnia = document.querySelector(`.plan-dnia[num='${dane.dzien}']`);
+        element_dnia.appendChild(blok_zajec);
+        blok_zajec = element_dnia.querySelector('.blok-zajec:not([id])');
+        blok_zajec.id = `blok_zajec_${id}`;
+
+        this.ustawDaneBlokuZajec(blok_zajec, dane);
+    }
+
+    ustawDaneBlokuZajec(blok_zajec, dane) {
+        // ustaw parametry bloku
+        var gora = this.czasNaPozycje(dane.poczatek);
+        var wysokosc = this.czasNaPozycje(dane.koniec) - gora;
+        blok_zajec.querySelector('.blok-przedmiot').innerHTML = this.dane.przedmioty.rekordy[dane.przedmiot].nazwa;
+        blok_zajec.querySelector('.blok-poczatek').innerHTML = dane.poczatek;
+        blok_zajec.querySelector('.blok-koniec').innerHTML = dane.koniec;
+        blok_zajec.querySelector('.blok-lokalizacja').innerHTML = dane.lokalizacja ? this.dane.lokalizacje.rekordy[dane.lokalizacja].nazwa : '';
+        blok_zajec.querySelector('.blok-nauczyciel').innerHTML = dane.nauczyciel ? this.dane.nauczyciele.rekordy[dane.lokalizacja].nazwa : '';
+        blok_zajec.style.top = gora + 'px';
+        blok_zajec.style.height = wysokosc + 'px';
     }
 
     async pobierzPlikDanych() {
@@ -293,7 +303,11 @@ class CMenadzerPodzialuGodzin {
             }
         }
         else if (this.stan_kursora.nazwa_klasy ==  'uchwyt-gorny') {
-            // var delta = e.clientY - this.stan_kursora.poczatek_przeciagania;
+            var delta = e.clientY - this.stan_kursora.poczatek_przeciagania;
+            var blok = this.stan_kursora.element.parentNode;
+            blok.style.top = e.clientY+'px';
+            blok.style.height = 100 - delta + 'px';
+            
         }
         else if (this.stan_kursora.nazwa_klasy == 'uchwyt-dolny') {
 

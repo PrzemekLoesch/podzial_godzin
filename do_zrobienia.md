@@ -28,14 +28,14 @@
 - [x] przy przesuwaniu korzystać z bezwzględnych współrzędnych myszy a nie z e.target
 - [ ] skok przesuwania co 5 minut (5 pixeli)
 - [ ] blokada możliwości przesuwania poza zakres kalendarza
-- [ ] gripy do przeciągania góry i dołu zajęcia
-- [ ] wskazywanie czasu początku i końca zajęcia
+- [x] gripy do przeciągania góry i dołu zajęcia
+- [x] wskazywanie czasu początku i końca zajęcia
 - [x] przywrócić możliwość edycji po kliknięciu na blok zajęć
 - [x] odczytywać dane z pliku
 
 # 9.09.2025
 - [x] usuwać z widoku zajęcia po wczytaniu danych z pliku
-- [ ] rozmieszczać prawidłowo nowe zajęcia po wczytaniu pliku
+- [x] rozmieszczać prawidłowo nowe zajęcia po wczytaniu pliku
 - [x] zapewnić integralność id danych po zapisie i wczytaniu pliku
 - [x] wyseparować nauczycieli do osobnego obiektu (ten sam przedmiot mogą prowadzić rózni nauczyciele)
 - [x] dodać lokalizację (sala, miejsce itp.)
@@ -45,9 +45,9 @@
 - [x] rozwiązać poprawne rozróżnianie akcji edycji od akcji przeciągania - flagę przeciągania ustawiać dopiwro w evencie move
 
 # 11.09.2025
-- [ ] wyświetlanie pozostałych danych na bloku zajęć w polu dnia - zaobaczyć jak to wygląda na vulcanie i innych
+- [x] wyświetlanie pozostałych danych na bloku zajęć w polu dnia - zaobaczyć jak to wygląda na vulcanie i innych
 - [x] skorygować prawidłową pozycję Y odczytaną przy przeciąganiu po plane dnia
-- [ ] blok zajęć wstawiać na podstawie template, w obsluzMouseDown rozpoznawać również kliknięcia na klasach skladowych
+- [x] blok zajęć wstawiać na podstawie template, w obsluzMouseDown rozpoznawać również kliknięcia na klasach skladowych
 
 # 12.09.2025
 - [ ] w czesie przeciągania po planie dnia wyświetlać tymczasowy div
@@ -55,6 +55,7 @@
 - [ ] zaprojektować wygląd bloku zajęć
 
 # 13.09.2025
-- [ ] przekazywać parametry ono modalnego w postaci obiektu (jest ich już za dużo)
-- [ ] rozbudować sposó” przechowywania danych - obiekt dane: {nazwa: {tytul, rekordy: {}}}
+- [x] przekazywać parametry ono modalnego w postaci obiektu (jest ich już za dużo)
+- [x] rozbudować sposób przechowywania danych - obiekt dane: {nazwa: {tytul, rekordy: {}, wolne_id}}
 - [ ] umożliwić kasowanie rekordów
+- [ ] wyodrębnić metody tworzącą blok zajęć i aktualizującą blok zajęć - wywoływać je odpowiednio dla nowych i istniejących rekordów

@@ -186,3 +186,21 @@ button {
 .blad {
     border-color: red;
 }
+
+.uchwyt-gorny {
+    width: 100%;
+    background-color: red;
+    height: 5px;
+    position: absolute;
+    top: 0px;
+    cursor: n-resize;
+}
+
+.uchwyt-dolny {
+    width: 100%;
+    background-color: red;
+    height: 5px;
+    position: absolute;
+    bottom: 0px;
+    cursor: n-resize;
+}
