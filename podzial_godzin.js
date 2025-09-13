@@ -32,25 +32,33 @@ class CMenadzerPodzialuGodzin {
 
     resetujDane() {
 
-        // pojemniki na dane
-        this.uczniowie = [];
-        this.przedmioty = [];
-        this.nauczyciele = [];
-        this.lokalizacje = [];
-        this.zajecia = [];
+        this.dane = {
+            uczniowie: {rekordy: {}, wolne_id: 1, tytul: 'Edycja danych ucznia'},
+            przedmioty: {rekordy: {}, wolne_id: 1, tytul: 'Edycja danych przedmiotu'},
+            nauczyciele: {rekordy: {}, wolne_id: 1, tytul: 'Edycja danych nauczyciela'},
+            lokalizacje: {rekordy: {}, wolne_id: 1, tytul: 'Edycja danych lokalizacji'},
+            zajecia: {rekordy: {}, wolne_id: 1, tytul: 'Edycja danych zajęć'},
+        }
 
         // usunięcie wszytkich bloków zajęć z widoku kalendarza
         Array.from(document.querySelectorAll('div[id^="blok_zajec_"]')).forEach(element => element.remove());
     }   
 
     otworzOkno(nazwa_danych, id) {
-        var okno = new COknoModalne(this, nazwa_danych, id, this[nazwa_danych][id]);
+        
+        var okno = new COknoModalne({
+            kontroler: this,
+            nazwa_danych: nazwa_danych,
+            id: id,
+            dane: this.dane[nazwa_danych].rekordy[id],
+            tytul: this.dane[nazwa_danych].tytul
+        });
     }
 
     otworzOknoZajec(id, dzien, poczatek, koniec) {
 
         // jeśli to edycja istniejących zajęć - przypisz dane z obiektu
-        if (id || id == 0) var dane = this.zajecia[id];
+        if (id) var dane = this.dane.zajecia.rekordy[id];
         
         // jeśli nowe zajęcia - ustaw wartości, które są znane
         else var dane = {
@@ -61,10 +69,22 @@ class CMenadzerPodzialuGodzin {
             koniec: koniec
         };
 
-        var okno = new COknoModalne(this, 'zajecia', id, dane, {przedmiot: this.przedmioty, uczen: this.uczniowie});
+        var okno = new COknoModalne({
+            kontroler: this,
+            nazwa_danych: 'zajecia',
+            id: id,
+            dane: dane,
+            opcje: {
+                przedmiot: this.dane.przedmioty.rekordy,
+                uczen: this.dane.uczniowie.rekordy,
+                nauczyciel: this.dane.nauczyciele.rekordy,
+                lokalizacja: this.dane.lokalizacje.rekordy
+            },
+            tytul: this.dane.zajecia.tytul
+        });
     }
 
-    zapiszDaneFormularza(nazwa_danych, id, dane) {
+    zapiszDane(nazwa_danych, id, dane) {
 
         if (nazwa_danych == 'zajecia') {
             this.zapiszZajecia(id, dane);
@@ -72,18 +92,24 @@ class CMenadzerPodzialuGodzin {
         }
 
         // edycja istniejącego rekordu
-        if (id || id == 0) {
+        if (id && document.querySelector(`#${nazwa_danych}_${id}`)) {
             // aktualizacja danych
-            this[nazwa_danych][id] = dane;
+            this.dane[nazwa_danych].rekordy[id] = dane;
             
             // aktualizacja etykiety
             document.querySelector(`#${nazwa_danych}_${id}`).innerHTML = dane.nazwa;
         }
 
-        // dodanie nowego rekordu
+        // dodanie nowego rekordu lub wprowadzenie rekordu z pliku, który ma już id
         else {
+            // pobierz wolne id i zwiększ jego wartość dla następnego rekordu
+            if (!id) {
+                id = this.dane[nazwa_danych].wolne_id;
+                this.dane[nazwa_danych].wolne_id ++;
+            }
+
             // dodaj rekord do list
-            var id = this[nazwa_danych].push(dane) - 1;
+            this.dane[nazwa_danych].rekordy[id] = dane;
 
             // dodaj pozycję listy
             var wpis = document.querySelector("#wpis").content.cloneNode(true);
@@ -97,27 +123,42 @@ class CMenadzerPodzialuGodzin {
 
     zapiszZajecia(id, dane) {
 
-        // edycjas istniejących zajęć
-        if (id) {
-            var zajecia = document.getElementById(`blok_zajec_${id}`);
+        // edycja istniejących zajęć
+        if (id && document.getElementById(`blok_zajec_${id}`)) {
+            var blok_zajec = document.getElementById(`blok_zajec_${id}`);
             var gora = this.czasNaPozycje(dane.poczatek);
             var wysokosc = this.czasNaPozycje(dane.koniec) - gora;
-            zajecia.style.top = gora + 'px';
-            zajecia.style.height = wysokosc + 'px';
-            zajecia.innerHTML = this.przedmioty[dane.przedmiot].nazwa;
+            blok_zajec.style.top = gora + 'px';
+            blok_zajec.style.height = wysokosc + 'px';
+            blok_zajec.innerHTML = this.przedmioty[dane.przedmiot].nazwa;
         }
 
         // dodanie nowych zajęć
         else {
-            id = this.zajecia.push(dane) - 1;
+            // ustal nowe id
+            if (!id) {
+                id = this.dane.zajecia.wolne_id;
+                this.dane.zajecia.wolne_id ++;
+            }
+            this.dane.zajecia.rekordy[id] = dane;
+            
+            // skopiuj szablon bloku zajęć
             var blok_zajec = document.querySelector("#blok_zajec").content.cloneNode(true);
-            blok_zajec.id = `blok_zajec_${id}`;
-            document.querySelector(`.plan-dnia[num='${dane.dzien}']`).appendChild(blok_zajec);
-            console.log('blok zajęć: ', blok_zajec);
-            blok_zajec = document.getElementById(`blok_zajec_${id}`);
-            blok_zajec.querySelector('.blok-przedmiot').innerHTML = this.przedmioty[dane.przedmiot].nazwa;
+
+            // ustaw parametry nowego bloku
+            blok_zajec.querySelector('.blok-przedmiot').innerHTML = this.dane.przedmioty.rekordy[dane.przedmiot].nazwa;
+            blok_zajec.querySelector('.blok-poczatek').innerHTML = dane.poczatek;
+            blok_zajec.querySelector('.blok-koniec').innerHTML = dane.koniec;
+            blok_zajec.querySelector('.blok-lokalizacja').innerHTML = dane.lokalizacja; // ? this.lokalizacje[dane.lokalizacja].nazwa;
+            blok_zajec.querySelector('.blok-nauczyciel').innerHTML = dane.nauczyciel; // ? this.lokalizacje[dane.lokalizacja].nazwa;
             var gora = this.czasNaPozycje(dane.poczatek);
             var wysokosc = this.czasNaPozycje(dane.koniec) - gora;
+           
+            // dodaj blok zajęć do struktury dom
+            var element_dnia = document.querySelector(`.plan-dnia[num='${dane.dzien}']`);
+            element_dnia.appendChild(blok_zajec);
+            blok_zajec = element_dnia.querySelector('.blok-zajec:not([id])');
+            blok_zajec.id = `blok_zajec_${id}`;
             blok_zajec.style.top = gora + 'px';
             blok_zajec.style.height = wysokosc + 'px';
         }
@@ -126,13 +167,7 @@ class CMenadzerPodzialuGodzin {
     async pobierzPlikDanych() {
 
         // blob z danymi
-        var blob = new Blob([JSON.stringify({
-            uczniowie: this.uczniowie,
-            przedmioty: this.przedmioty,
-            nauczyciele: this.nauczyciele,
-            lokalizacje: this.lokalizacje,
-            zajecia: this.zajecia
-        })], { type: 'text/plain' });
+        var blob = new Blob([JSON.stringify(this.dane)], { type: 'text/plain' });
         
         // url
         var blobURL = URL.createObjectURL(blob);
@@ -173,12 +208,13 @@ class CMenadzerPodzialuGodzin {
         
         Object.keys(dane).forEach(nazwa_danych => {
             if (nazwa_danych == 'zajecia') {
-                dane.zajecia.forEach(zajecia => this.zapiszZajecia(null, zajecia));
+                Object.keys(dane.zajecia.rekordy).forEach(id => this.zapiszZajecia(id, dane.zajecia.rekordy[id]));
             }
 
             else {
                 document.getElementById(`lista_${nazwa_danych}`).innerHTML = '';
-                dane[nazwa_danych].forEach(rekord => this.zapiszDaneFormularza(nazwa_danych, null, rekord));
+                Object.keys(dane[nazwa_danych].rekordy).forEach(id => this.zapiszDane(nazwa_danych, id, dane[nazwa_danych].rekordy[id]));
+                this.dane[nazwa_danych].wolne_id = dane[nazwa_danych].wolne_id;
             }
         });
     }
@@ -242,7 +278,7 @@ class CMenadzerPodzialuGodzin {
             // aktualizuj położenie zajęć
             this.stan_kursora.element.style.top = `${top}px`;
             // aktualizuj dane zajęć
-            this.zajecia[this.stan_kursora.element.id.split('_')[2]].poczatek = this.pozycjaNaCzas(top);
+            this.dane.zajecia.rekordy[this.stan_kursora.element.id.split('_')[2]].poczatek = this.pozycjaNaCzas(top);
         }
         else if (this.stan_kursora.element.nazwa_klasy == 'plan-dnia') {
             

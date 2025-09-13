@@ -1,23 +1,35 @@
 class COknoModalne {
+    /**
+     * @param {object} parametry.kontroler Wskaźnik do kontrolera podziału godzin
+     * @param {string} parametry.nazwa_danych Nazwa listy z edytowanymi danymi
+     * @param {number} parametry.id Indeks edytowanego rekordu w liście danych
+     * @param {object} parametry.dane Wartości atrybutów obiektu danych
+     * @param {object} parametry.opcje Wartości opcji dla atrybutów referencyjnych
+     * @param {string} parametry.tytul Tytuł okna
+     */
+    constructor(parametry) {
 
-    constructor(kontroler, nazwa_danych, id, dane, opcje) {
+        console.log('Opcje: ', parametry.opcje);
 
         // zapisz wskaźnik do kontrolera
-        this.kontroler = kontroler;
-        this.nazwa_danych = nazwa_danych;
-        this.dane = dane;
-        this.id = id;
+        this.kontroler = parametry.kontroler;
+        this.nazwa_danych = parametry.nazwa_danych;
+        this.dane = parametry.dane;
+        this.id = parametry.id;
 
         // zbuduj ciało okna z szablonu
         document.body.appendChild(document.querySelector('#cialo_okna_modalnego').content.cloneNode(true));
         this.element = document.querySelector('div[class="okno-modalne"]');
 
         // dodaj do pola treści formularz przedmiotu
-        this.element.querySelector('.tresc-okna-modalnego').appendChild(document.querySelector(`#formularz_${nazwa_danych}`).content.cloneNode(true));
+        this.element.querySelector('.tresc-okna-modalnego').appendChild(document.querySelector(`#formularz_${this.nazwa_danych}`).content.cloneNode(true));
 
         // włącz przeciąganie okna za pomocą nagłówka i skalowanie za pomocą narożnika
         this.naglowek = this.element.querySelector('.naglowek-okna-modalnego');
         this.naglowek.addEventListener('mousedown', e => this.rozpocznijPrzeciaganie(e));
+        
+        // ustaw tytuł okna
+        if (parametry.tytul) this.element.querySelector('.tytul-okna-modalnego').innerHTML = parametry.tytul;
 
         // włącz funkcję przycisków
         this.element.querySelector('#zamknij').addEventListener('click', () => this.usunOkno());
@@ -25,21 +37,21 @@ class COknoModalne {
         this.element.querySelector('#zapisz').addEventListener('click', () => this.wyslijDane());
 
         // wypełnij pola select danymi
-        if (opcje) Object.keys(opcje).forEach(nazwa_pola => {
+        if (parametry.opcje) Object.keys(parametry.opcje).forEach(nazwa_pola => {
             
             // znajdź właściwe pole select
             var select = this.element.querySelector(`#${nazwa_pola}`);
 
-            opcje[nazwa_pola].forEach((opcja, i) => {
+            Object.keys(parametry.opcje[nazwa_pola]).forEach(id_opcji => {
                 var op = document.createElement('option');
-                op.innerHTML = opcja.nazwa;
-                op.value = i;
+                op.innerHTML = parametry.opcje[nazwa_pola][id_opcji].nazwa;
+                op.value = id_opcji;
                 select.appendChild(op);
             });
         });
 
         // jeśli podano dane wypełnij widgety danymi
-        if (dane) Array.from(this.element.querySelectorAll('input, select')).forEach(widget => widget.value = dane[widget.id] || '');
+        if (this.dane) Array.from(this.element.querySelectorAll('input, select')).forEach(widget => widget.value = this.dane[widget.id] || '');
         
         // jeśli nie podano danych ustaw widgety select na brak wyboru
         else Array.from(this.element.querySelectorAll('select')).forEach(widget => widget.value = '');
@@ -138,7 +150,7 @@ class COknoModalne {
         if (this.dane) Object.keys(this.dane).forEach(klucz => {if (!dane.hasOwnProperty(klucz)) dane[klucz] = this.dane[klucz]});
         
         // wyślij dane do właściciela formularza
-        this.kontroler.zapiszDaneFormularza(this.nazwa_danych, this.id, dane);
+        this.kontroler.zapiszDane(this.nazwa_danych, this.id, dane);
         
         // skasuj instancję
         this.usunOkno();

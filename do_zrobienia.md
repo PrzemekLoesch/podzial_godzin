@@ -53,3 +53,8 @@
 - [ ] w czesie przeciągania po planie dnia wyświetlać tymczasowy div
 - [x] zapamiętywać nazwę klasy, której dotyczy event myszy w obsluzMouseDown
 - [ ] zaprojektować wygląd bloku zajęć
+
+# 13.09.2025
+- [ ] przekazywać parametry ono modalnego w postaci obiektu (jest ich już za dużo)
+- [ ] rozbudować sposó” przechowywania danych - obiekt dane: {nazwa: {tytul, rekordy: {}}}
+- [ ] umożliwić kasowanie rekordów
