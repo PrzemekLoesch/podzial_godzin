@@ -66,3 +66,5 @@
 - [ ] wyłączać styl kursor grabbing po przeciągnięciu bloku zajęć
 - [ ] rozwiązać sposób prezentacji dla treści, która się nie mieści w bloku zajęć
 - [ ] umożliwić przeciąganie zajęć pomiędzy dniami
+- [ ] uniemożliwić zmniejszanie czasu zajęć poniżej zera w wyniku przeciągania uchwytów
+- [x] usunąć uchwyt górny
