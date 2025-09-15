@@ -50,12 +50,19 @@
 - [x] blok zajęć wstawiać na podstawie template, w obsluzMouseDown rozpoznawać również kliknięcia na klasach skladowych
 
 # 12.09.2025
-- [ ] w czesie przeciągania po planie dnia wyświetlać tymczasowy div
+- [x] w czesie przeciągania po planie dnia wyświetlać tymczasowy div
 - [x] zapamiętywać nazwę klasy, której dotyczy event myszy w obsluzMouseDown
-- [ ] zaprojektować wygląd bloku zajęć
+- [x] zaprojektować wygląd bloku zajęć
 
 # 13.09.2025
 - [x] przekazywać parametry ono modalnego w postaci obiektu (jest ich już za dużo)
 - [x] rozbudować sposób przechowywania danych - obiekt dane: {nazwa: {tytul, rekordy: {}, wolne_id}}
 - [ ] umożliwić kasowanie rekordów
-- [ ] wyodrębnić metody tworzącą blok zajęć i aktualizującą blok zajęć - wywoływać je odpowiednio dla nowych i istniejących rekordów
+- [x] wyodrębnić metody tworzącą blok zajęć i aktualizującą blok zajęć - wywoływać je odpowiednio dla nowych i istniejących rekordów
+
+# 15.09.2025
+- [ ] w trakcie tworzenia aktualizować czas w bloku zajęć - te dane będą później służyły do zapisania zajęć
+- [ ] adresować kliknięcia na atrybutach bloku zajęć do bloku zajęć - otwierać okno edycji
+- [ ] wyłączać styl kursor grabbing po przeciągnięciu bloku zajęć
+- [ ] rozwiązać sposób prezentacji dla treści, która się nie mieści w bloku zajęć
+- [ ] umożliwić przeciąganie zajęć pomiędzy dniami

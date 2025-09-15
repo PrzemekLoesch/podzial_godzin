@@ -175,6 +175,12 @@ button {
     display: flex;
     justify-content: center;
     align-items: center;
+    cursor: pointer;
+    min-height: 15px;
+}
+
+.blok-zajec > div {
+    user-select: none;
 }
 
 .lista-rekordow {
@@ -183,13 +189,17 @@ button {
     padding-left: 20px;
 }
 
+.tytul-listy {
+    font-weight: bold;
+}
+
 .blad {
     border-color: red;
 }
 
 .uchwyt-gorny {
     width: 100%;
-    background-color: red;
+    background-color: #fadb90;
     height: 5px;
     position: absolute;
     top: 0px;
@@ -198,7 +208,7 @@ button {
 
 .uchwyt-dolny {
     width: 100%;
-    background-color: red;
+    background-color: #fadb90;
     height: 5px;
     position: absolute;
     bottom: 0px;

@@ -9,8 +9,6 @@ class COknoModalne {
      */
     constructor(parametry) {
 
-        console.log('Opcje: ', parametry.opcje);
-
         // zapisz wskaźnik do kontrolera
         this.kontroler = parametry.kontroler;
         this.nazwa_danych = parametry.nazwa_danych;
@@ -32,8 +30,8 @@ class COknoModalne {
         if (parametry.tytul) this.element.querySelector('.tytul-okna-modalnego').innerHTML = parametry.tytul;
 
         // włącz funkcję przycisków
-        this.element.querySelector('#zamknij').addEventListener('click', () => this.usunOkno());
-        this.element.querySelector('#anuluj').addEventListener('click', () => this.usunOkno());
+        this.element.querySelector('#zamknij').addEventListener('click', () => this.anulujWysylanie());
+        this.element.querySelector('#anuluj').addEventListener('click', () => this.anulujWysylanie());
         this.element.querySelector('#zapisz').addEventListener('click', () => this.wyslijDane());
 
         // wypełnij pola select danymi
@@ -131,6 +129,35 @@ class COknoModalne {
     // przekazuje dane z widgetów do właściciela
     wyslijDane() {
 
+        // odcztytaj i waliduj dane
+        var wynik = this.odczytajDane();
+
+        // jeśli dane są niepoprawne wróć
+        if (!wynik.poprawnosc) return;
+
+        // wyślij je do kontrolera
+        this.kontroler.zapiszDane(this.nazwa_danych, this.id, wynik.dane);
+        
+        // skasuj instancję
+        this.zamknijOkno();
+    }
+
+    // anulowanie wysyłana danych - powiadomienie kontrolera
+    anulujWysylanie() {
+
+        this.kontroler.anulowanieEdycji(this.nazwa_danych, this.id, this.odczytajDane().dane);
+        this.zamknijOkno();
+    }
+
+    // usuwa element okna i kasuje instancję obiektu okna
+    zamknijOkno() {
+        document.body.removeChild(this.element.parentNode);
+        delete this;
+    }
+
+    // odczytuje dane i waliduje je w zakresie wypełnienia wymaganych pól
+    odczytajDane() {
+
         // założenie kompletności
         var poprawnosc = true;
         
@@ -144,20 +171,9 @@ class COknoModalne {
             return [widget.id, widget.value];
         }));
 
-        if (!poprawnosc) return;
-        
         // dopisz dane, których nie było w widgetach ale zostały podane przez właściciela
         if (this.dane) Object.keys(this.dane).forEach(klucz => {if (!dane.hasOwnProperty(klucz)) dane[klucz] = this.dane[klucz]});
-        
-        // wyślij dane do właściciela formularza
-        this.kontroler.zapiszDane(this.nazwa_danych, this.id, dane);
-        
-        // skasuj instancję
-        this.usunOkno();
-    }
 
-    usunOkno() {
-        document.body.removeChild(this.element.parentNode);
-        delete this;
+        return {dane: dane, poprawnosc: poprawnosc};
     }
 }
