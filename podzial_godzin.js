@@ -284,7 +284,7 @@ class CMenadzerPodzialuGodzin {
         document.onmousemove = e => this.obsluzMouseMove(e);
 
         // zarejestruj dane naciśnietego elementu
-        this.stan_kursora.poczatek_przeciagania = e.clientY;
+        this.stan_kursora.poczatek_przeciagania;
         this.stan_kursora.przeciagnieto = false;
         
         // ustalenie jaki element naciśnięßo i ew. przekierowanie na rodzica
@@ -310,8 +310,9 @@ class CMenadzerPodzialuGodzin {
         // ustawienie parametrów w zależności od tego co kliknięto
 
         // naciśnięto istniejący blok zajęć
-        if (this.stan_kursora.nazwa_klasy === 'blok-zajec') {
+        if (this.stan_kursora.nazwa_klasy == 'blok-zajec') {
             this.stan_kursora.pozycja_poczatkowa_zajec = parseInt(this.stan_kursora.element.style.top.slice(0,-2));
+            this.stan_kursora.wysokosc_poczatkowa_zajec = parseInt(this.stan_kursora.element.style.height.slice(0,-2));
         }
         
         // naciśnieto uchwyt dolny
@@ -330,10 +331,16 @@ class CMenadzerPodzialuGodzin {
         // przeciąganie bloku zajeć
         if (this.stan_kursora.nazwa_klasy == 'blok-zajec') {
             
-            // oblicz aktualną pozycję góry
-            var top = this.stan_kursora.pozycja_poczatkowa_zajec + e.clientY - this.stan_kursora.poczatek_przeciagania;
+            // obliczenie pozycji początkowej
+            var wymiary = this.wymiaryPrzeciaganegoBlokuZajec(e.clientY);
+
             // aktualizuj położenie zajęć
-            this.stan_kursora.element.style.top = `${top}px`;
+            this.stan_kursora.element.style.top = `${wymiary.poczatek}px`;
+
+            // aktualizuj wyświetlane wartości początku i końca zajęć
+            this.stan_kursora.element.querySelector('.blok-poczatek').innerHTML = this.pozycjaNaCzas(wymiary.poczatek);
+            this.stan_kursora.element.querySelector('.blok-koniec').innerHTML = this.pozycjaNaCzas(wymiary.koniec);
+
             // kursor grabbing
             this.stan_kursora.element.style.cursor = 'grabbing';
         }
@@ -342,18 +349,17 @@ class CMenadzerPodzialuGodzin {
         else if (this.stan_kursora.nazwa_klasy == 'plan-dnia') {
 
             // zapisz parametry początkowe przeciąganego bloku do stanu kursora
-            var rect = e.target.getBoundingClientRect();
-            var poczatek = this.pozycjaNaCzas(e.clientY - rect.top);
+            var poczatek = e.clientY - e.target.getBoundingClientRect().top;
+            poczatek = Math.floor(poczatek / 5) * 5;
             this.stan_kursora.nazwa_klasy = 'uchwyt-bloku';
             this.stan_kursora.pozycja_poczatkowa_zajec = poczatek;
             this.stan_kursora.poczatek_przeciagania = e.clientY;
             this.stan_kursora.wysokosc_poczatkowa_zajec = 0;
 
-           
             // utwórz nowy blok zajęć z id=null
             var element = this.utworzBlokZajec(null, {
-                poczatek: poczatek,
-                koniec: poczatek,
+                poczatek: this.pozycjaNaCzas(poczatek),
+                koniec: this.pozycjaNaCzas(poczatek),
                 dzien: e.target.getAttribute('num')
             });
 
@@ -363,14 +369,16 @@ class CMenadzerPodzialuGodzin {
 
         // przeciąganie dolnej krawędzi - zmiana końca zajęć
         else if (this.stan_kursora.nazwa_klasy == 'uchwyt-bloku') {
-
-            console.log('Przeciąganie dół');
-            var delta = this.stan_kursora.poczatek_przeciagania - e.clientY;
             var blok = this.stan_kursora.element.parentNode;
-            var wysokosc = this.stan_kursora.wysokosc_poczatkowa_zajec - delta;
-            var koniec = this.czasNaPozycje(blok.querySelector('.blok-poczatek').innerHTML) + wysokosc;
-            blok.style.height = wysokosc + 'px';
-            blok.querySelector('.blok-koniec').innerHTML = this.pozycjaNaCzas(koniec);
+            var wymiary = this.wymiaryPrzeciaganegoBlokuZajec(e.clientY);
+            blok.style.height = wymiary.wysokosc + 'px';
+            blok.querySelector('.blok-koniec').innerHTML = this.pozycjaNaCzas(wymiary.koniec);
+            
+            // dla bloku, który jest dopiero tworzony zamiast nazwy zajęć podaj czas ich trwania
+            var id = blok.id.split('_')[2];
+            if (id == 'null') {
+                blok.querySelector('.blok-przedmiot').innerHTML = wymiary.wysokosc;
+            }
         }
     }
 
@@ -396,7 +404,7 @@ class CMenadzerPodzialuGodzin {
 
             // zmiana dolnego położenia zajęć
             if (this.stan_kursora.nazwa_klasy == 'uchwyt-bloku') {
-                
+
                 // id zmienianego bloku zajęć
                 var blok = this.stan_kursora.element.parentNode;
                 var id = blok.id.split('_')[2];
@@ -409,7 +417,7 @@ class CMenadzerPodzialuGodzin {
                     this.otworzOknoZajec(null, dzien, poczatek, koniec);
                 }
 
-                // przeciąganie dotyczyło wydłużenia zadania
+                // przeciąganie dotyczyło wydłużenia / skrócenia zadania
                 else {
                     var koniec = blok.querySelector('.blok-koniec').innerHTML;
                     this.dane.zajecia.rekordy[blok.id.split('_')[2]].koniec = koniec;
@@ -433,6 +441,34 @@ class CMenadzerPodzialuGodzin {
         var [godziny, minuty] = czas.split(':');
         var pozycja = (parseInt(godziny) - 7) * 60 + parseInt(minuty);
         return pozycja;
+    }
+
+    wymiaryPrzeciaganegoBlokuZajec(clientY) {
+        
+        // o ile przesunięto mysz w pionie od pierwszego mouseDown
+        var delta = clientY - this.stan_kursora.poczatek_przeciagania;
+
+        // jeśli przesuwany jest cały blok zajęć
+        if (this.stan_kursora.nazwa_klasy == 'blok-zajec') {
+            var poczatek = this.stan_kursora.pozycja_poczatkowa_zajec + delta;
+            var wysokosc = this.stan_kursora.wysokosc_poczatkowa_zajec;
+        }
+
+        // jeśli zajęcia są wydłużane / skracane uchwytem dolnym
+        if (this.stan_kursora.nazwa_klasy == 'uchwyt-bloku') {
+            var poczatek = this.stan_kursora.pozycja_poczatkowa_zajec;
+            var wysokosc = this.stan_kursora.wysokosc_poczatkowa_zajec + delta;
+            if (wysokosc < 5) wysokosc = 5;
+        }
+
+        poczatek = Math.floor(poczatek / 5) * 5;
+        wysokosc = Math.floor(wysokosc / 5) * 5;
+
+        return {
+            poczatek: poczatek,
+            koniec: poczatek + wysokosc,
+            wysokosc: wysokosc
+        }
     }
 }
 

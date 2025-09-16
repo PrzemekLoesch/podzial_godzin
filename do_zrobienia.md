@@ -68,3 +68,7 @@
 - [ ] umożliwić przeciąganie zajęć pomiędzy dniami
 - [ ] uniemożliwić zmniejszanie czasu zajęć poniżej zera w wyniku przeciągania uchwytów
 - [x] usunąć uchwyt górny
+
+# 16.09.2025
+- [ ] przy przeciąganiu zawsze obliczać aktualne położenie i długość zajęć bazując na wartościach pierwotnych i delcie
+- [ ] wyodrębnić ustalanie początku, końca i wysokości zajęć do niezależnych metod - mają cały czas dostęp do this.stan_kursora, wystarczy przekazać clientY
