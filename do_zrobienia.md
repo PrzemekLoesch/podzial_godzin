@@ -82,3 +82,6 @@
 - [ ] wraz z usunięciem ucznia i przedmiotu usuwać również zajęcia
 - [ ] wraz z usunieciem lokalizacji i nauczyciela usuwać opisy w blokaczh zajęć i ustawiać atrybutych nauczyciel i lokalizacja na null
 - [ ] zmienić nazwę danch lokalizacje na miejsca i atrybutów zajeć lokalizacja na miejsce
+- [ ] w oknie edycji dziecka dodać color picker do wyboru koloru
+- [ ] kolorować bloki zajęć i wpisy według koloru dziecka
+- [ ] aktualizacja danych dostosować do aktualnego schematu wpis

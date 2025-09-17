@@ -193,6 +193,8 @@ button {
 .wpis-listy-rekordow {
     display: grid;
     grid-template-columns: 1fr 26px;
+    margin: 2px;
+    line-height: 20px;
 }
 
 .tytul-listy {

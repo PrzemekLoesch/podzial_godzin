@@ -88,7 +88,7 @@
                 </div>
                 <div class="tresc-okna-modalnego"></div>
                 <div class="stopka-okna-modalnego">
-                    <button id="usun" type="button" class="przycisk">Usuń</button>
+                    <button id="usun" type="button" class="przycisk" style="float: left; background-color: orange;">Usuń</button>
                     <button id="anuluj" type="button" class="przycisk">Anuluj</button>
                     <button id="zapisz" type="button" class="przycisk">Zapisz</button>
                 </div>
@@ -107,6 +107,13 @@
         <form class="formularz">
             <div>Uczeń</div><input id="nazwa" wymog=true>
             <div>Inicjały</div><input id="skrot">
+            <div>Kolor</div>
+            <input id="kolor" type="color" list="presets" value="#dddddd">
+            <datalist id="presets">
+                <option value="#cccccc">Grey</option>
+                <option value="#ffffff">White</option>
+                <option value="#6699cc">Blue</option>
+            </datalist>
         </form>
     </template>
 

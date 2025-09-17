@@ -107,19 +107,23 @@ class CKontrolerPodzialuGodzin {
     // zawsze aktualizuje widok rekordu na liście
     zapiszDane(nazwa_danych, id, dane) {
 
-        // dla danych zajęć odsyłą ðó funkcji speocjalistycznej
+        // dla danych zajęć odsyłaj do funkcji speocjalistycznej
         if (nazwa_danych == 'zajecia') {
             this.zapiszZajecia(id, dane);
             return;
         }
 
+        var wpis = document.querySelector(`#${nazwa_danych}_${id}`);
+
         // edycja istniejącego rekordu
-        if (id && document.querySelector(`#${nazwa_danych}_${id}`)) {
+        if (id && wpis) {
+            
             // aktualizacja danych
-            this.dane[nazwa_danych].rekordy[id] = dane;
+            wpis.querySelector('.nazwa-rekordu').innerHTML = dane.nazwa;
             
             // aktualizacja etykiety
             document.querySelector(`#${nazwa_danych}_${id}`).innerHTML = dane.nazwa;
+            if (dane.kolor) wpis.style.backgroundColor = dane.kolor;
         }
 
         // dodanie nowego rekordu lub wprowadzenie rekordu z pliku, który ma już id
@@ -138,6 +142,7 @@ class CKontrolerPodzialuGodzin {
             wpis.querySelector('.wpis-listy-rekordow').id = `${nazwa_danych}_${id}`;
             wpis.querySelector('.nazwa-rekordu').innerHTML = dane.nazwa;
             wpis.querySelector('.przycisk-edycji').addEventListener('click', () => this.otworzOkno(nazwa_danych, id));
+            if (dane.kolor) wpis.querySelector('.wpis-listy-rekordow').style.backgroundColor = dane.kolor;
 
             // dopisz pozycję do listy
             document.querySelector(`#lista_${nazwa_danych}`).appendChild(wpis);
