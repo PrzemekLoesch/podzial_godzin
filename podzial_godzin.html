@@ -88,6 +88,7 @@
                 </div>
                 <div class="tresc-okna-modalnego"></div>
                 <div class="stopka-okna-modalnego">
+                    <button id="usun" type="button" class="przycisk">Usuń</button>
                     <button id="anuluj" type="button" class="przycisk">Anuluj</button>
                     <button id="zapisz" type="button" class="przycisk">Zapisz</button>
                 </div>
@@ -134,21 +135,22 @@
         </form>
     </template>
 
-    <template id="wpis">
-        <div></div>
-        <button>...</button>
+    <template id="wpis_listy_rekordow">
+        <div class="wpis-listy-rekordow">
+            <div class="nazwa-rekordu"></div>
+            <button class="przycisk-edycji">...</button>
+        </div>
     </template>
 
     <template id="blok_zajec">
         <div class="blok-zajec">
-            <div class="tresc-bloku-zajec">
-                <div class="blok-poczatek"></div>
-                <div class="blok-koniec"></div>
-                <div class="blok-przedmiot"></div>
-                <div class="blok-uczen"></div>
-                <div class="blok-nauczyciel"></div>
-                <div class="blok-lokalizacja"></div>
+            <div>
+                <span class="blok-poczatek"></span><span>-</span><span class="blok-koniec"></span>
             </div>
+            <div class="blok-przedmiot"></div>
+            <div class="blok-uczen"></div>
+            <div class="blok-nauczyciel"></div>
+            <div class="blok-lokalizacja"></div>
             <div class="uchwyt-bloku"></div>
         </div>
     </template>

@@ -26,7 +26,7 @@
 
 # 8.09.2025
 - [x] przy przesuwaniu korzystać z bezwzględnych współrzędnych myszy a nie z e.target
-- [ ] skok przesuwania co 5 minut (5 pixeli)
+- [x] skok przesuwania co 5 minut (5 pixeli)
 - [ ] blokada możliwości przesuwania poza zakres kalendarza
 - [x] gripy do przeciągania góry i dołu zajęcia
 - [x] wskazywanie czasu początku i końca zajęcia
@@ -57,18 +57,28 @@
 # 13.09.2025
 - [x] przekazywać parametry ono modalnego w postaci obiektu (jest ich już za dużo)
 - [x] rozbudować sposób przechowywania danych - obiekt dane: {nazwa: {tytul, rekordy: {}, wolne_id}}
-- [ ] umożliwić kasowanie rekordów
+- [x] umożliwić kasowanie rekordów
 - [x] wyodrębnić metody tworzącą blok zajęć i aktualizującą blok zajęć - wywoływać je odpowiednio dla nowych i istniejących rekordów
 
 # 15.09.2025
-- [ ] w trakcie tworzenia aktualizować czas w bloku zajęć - te dane będą później służyły do zapisania zajęć
-- [ ] adresować kliknięcia na atrybutach bloku zajęć do bloku zajęć - otwierać okno edycji
-- [ ] wyłączać styl kursor grabbing po przeciągnięciu bloku zajęć
+- [x] w trakcie tworzenia aktualizować czas w bloku zajęć - te dane będą później służyły do zapisania zajęć
+- [x] adresować kliknięcia na atrybutach bloku zajęć do bloku zajęć - otwierać okno edycji
+- [x] wyłączać styl kursor grabbing po przeciągnięciu bloku zajęć
 - [ ] rozwiązać sposób prezentacji dla treści, która się nie mieści w bloku zajęć
 - [ ] umożliwić przeciąganie zajęć pomiędzy dniami
-- [ ] uniemożliwić zmniejszanie czasu zajęć poniżej zera w wyniku przeciągania uchwytów
+- [x] uniemożliwić zmniejszanie czasu zajęć poniżej zera w wyniku przeciągania uchwytów
 - [x] usunąć uchwyt górny
 
 # 16.09.2025
-- [ ] przy przeciąganiu zawsze obliczać aktualne położenie i długość zajęć bazując na wartościach pierwotnych i delcie
-- [ ] wyodrębnić ustalanie początku, końca i wysokości zajęć do niezależnych metod - mają cały czas dostęp do this.stan_kursora, wystarczy przekazać clientY
+- [x] przy przeciąganiu zawsze obliczać aktualne położenie i długość zajęć bazując na wartościach pierwotnych i delcie
+- [x] wyodrębnić ustalanie początku, końca i wysokości zajęć do niezależnych metod - mają cały czas dostęp do this.stan_kursora, wystarczy przekazać clientY
+- [x] przy przekierowaniu mouseDown z dzieci na blok zajęć prawidłowo odczytywać y
+- [x] dla select bez atrybutu wymóg generować dodatkowo pustą opcję
+
+# 17.09.2025
+- [x] dodać przycisk usuń w oknie edycji i metodę obsługującą w kontrolerze
+- [x] zmienić nazwę menadżer na kontroler
+- [ ] zwiększyć wysokość kalendarza - nie mieści się opis zajęć
+- [ ] wraz z usunięciem ucznia i przedmiotu usuwać również zajęcia
+- [ ] wraz z usunieciem lokalizacji i nauczyciela usuwać opisy w blokaczh zajęć i ustawiać atrybutych nauczyciel i lokalizacja na null
+- [ ] zmienić nazwę danch lokalizacje na miejsca i atrybutów zajeć lokalizacja na miejsce

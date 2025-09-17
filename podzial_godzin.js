@@ -1,4 +1,4 @@
-class CMenadzerPodzialuGodzin {
+class CKontrolerPodzialuGodzin {
     constructor() {
         
         // włącz eventy
@@ -95,6 +95,14 @@ class CMenadzerPodzialuGodzin {
         }
     }
 
+    usunRekord(nazwa_danych, id) {
+        console.log('Nazwa danych: ', nazwa_danych);
+        console.log('Id: ', id);
+        delete this.dane[nazwa_danych].rekordy[id];
+        if (nazwa_danych == 'zajecia') document.querySelector(`#blok_zajec_${id}`).remove();
+        else document.querySelector(`#${nazwa_danych}_${id}`).remove();
+    }
+
     // dla danych: uczniowie, przedmioty, nauczyciele, lokalizacje - tworzy nowe rekordy w obiekcie dane lub aktualizuje rekord jeśli podano id
     // zawsze aktualizuje widok rekordu na liście
     zapiszDane(nazwa_danych, id, dane) {
@@ -125,12 +133,13 @@ class CMenadzerPodzialuGodzin {
             // dodaj rekord do list
             this.dane[nazwa_danych].rekordy[id] = dane;
 
-            // dodaj pozycję listy
-            var wpis = document.querySelector("#wpis").content.cloneNode(true);
-            var div = wpis.querySelector('div');
-            div.innerHTML = dane.nazwa;
-            div.id = `${nazwa_danych}_${id}`;
-            wpis.querySelector('button').addEventListener('click', () => this.otworzOkno(nazwa_danych, id));
+            // dodaj pozycję listy i ustaw jej parametry
+            var wpis = document.querySelector("#wpis_listy_rekordow").content.cloneNode(true);
+            wpis.querySelector('.wpis-listy-rekordow').id = `${nazwa_danych}_${id}`;
+            wpis.querySelector('.nazwa-rekordu').innerHTML = dane.nazwa;
+            wpis.querySelector('.przycisk-edycji').addEventListener('click', () => this.otworzOkno(nazwa_danych, id));
+
+            // dopisz pozycję do listy
             document.querySelector(`#lista_${nazwa_danych}`).appendChild(wpis);
         }
     }
@@ -140,23 +149,25 @@ class CMenadzerPodzialuGodzin {
     // - tworzy nowy element blok-zajec na kalendarzu lub aktualizuje jego dane
     zapiszZajecia(id, dane) {
 
-        // edycja istniejącego rekordu
-        if (!id) {
+        // utworzenie nowych zajęć poprzez przeciąganie
+        if (id === null) {
             id = this.dane.zajecia.wolne_id;
             this.dane.zajecia.wolne_id ++;
+            var blok = document.getElementById(`blok_zajec_null`);
+            blok.id = `blok_zajec_${id}`;
         }
+
+        // jeśli podano id spróbuj odnaleźć właściwy blok zajęć
+        else var blok = document.getElementById(`blok_zajec_${id}`);
+
+        // jeśli występuje już ten blok to zaktualizuj jego dane
+        if (blok) this.aktualizujBlokZajec(blok, dane);
+
+        // jeśli nie występuje (po odczycie danych z pliku) utwórz ten blok i od razu ustaw jego dane
+        else this.utworzBlokZajec(id, dane);
         
         // aktualizacja rekordu
         this.dane.zajecia.rekordy[id] = dane;
-
-        // próba odczytania bloku zajeć
-        var blok = document.getElementById(`blok_zajec_${id}`);
-        
-        // jeśli występuje już ten blok
-        if (blok) this.aktualizujBlokZajec(blok, dane);
-
-        // utwórz i od razu ustaw dane
-        else this.utworzBlokZajec(id, dane);
     }
 
     // tworzy nowy blok zajęć
@@ -192,7 +203,7 @@ class CMenadzerPodzialuGodzin {
         // aktualizuj opis danych, które podano
         if (dane.przedmiot) blok_zajec.querySelector('.blok-przedmiot').innerHTML = this.dane.przedmioty.rekordy[dane.przedmiot].nazwa;
         if (dane.lokalizacja) blok_zajec.querySelector('.blok-lokalizacja').innerHTML = dane.lokalizacja ? this.dane.lokalizacje.rekordy[dane.lokalizacja].nazwa : '';
-        if (dane.nauczyciel) blok_zajec.querySelector('.blok-nauczyciel').innerHTML = dane.nauczyciel ? this.dane.nauczyciele.rekordy[dane.lokalizacja].nazwa : '';
+        if (dane.nauczyciel) blok_zajec.querySelector('.blok-nauczyciel').innerHTML = dane.nauczyciel ? this.dane.nauczyciele.rekordy[dane.nauczyciel].nazwa : '';
     }
 
     async pobierzPlikDanych() {
@@ -264,7 +275,11 @@ class CMenadzerPodzialuGodzin {
         if (this.stan_kursora.przeciagnieto) return;
 
         // edycja istniejących zajęć
-        if (e.target.classList.contains('blok-zajec')) this.otworzOknoZajec(e.target.id.split('_')[2]);
+        if (['blok-zajec', 'blok-poczatek', 'blok-koniec', 'blok-przedmiot', 'blok-uczen', 'blok-nauczyciel', 'blok-lokalizacja'].find(klasa => e.target.classList.contains(klasa))) {
+            this.otworzOknoZajec(e.target.closest('.blok-zajec').id.split('_')[2]);
+        }
+        
+        // if (e.target.classList.contains('blok-zajec')) this.otworzOknoZajec(e.target.id.split('_')[2]);
 
         // dodanie zajęć
         else if (e.target.classList.contains('plan-dnia')) {
@@ -284,7 +299,7 @@ class CMenadzerPodzialuGodzin {
         document.onmousemove = e => this.obsluzMouseMove(e);
 
         // zarejestruj dane naciśnietego elementu
-        this.stan_kursora.poczatek_przeciagania;
+        this.stan_kursora.poczatek_przeciagania = e.clientY;
         this.stan_kursora.przeciagnieto = false;
         
         // ustalenie jaki element naciśnięßo i ew. przekierowanie na rodzica
@@ -298,14 +313,8 @@ class CMenadzerPodzialuGodzin {
         // zapisanie klasy i elementu dla naciśniętych elementów, zagnieżdżonych - zapisanie danych bloku zajęć
         ['blok-poczatek', 'blok-koniec', 'blok-przedmiot', 'blok-uczen', 'blok-nauczyciel', 'blok-lokalizacja'].forEach(nazwa_klasy => {if (e.target.classList.contains(nazwa_klasy)) {
             this.stan_kursora.nazwa_klasy = 'blok-zajec';
-            this.stan_kursora.element = e.target.parentNode.parentNode;
+            this.stan_kursora.element = e.target.closest('.blok-zajec');
         }});
-
-        // jw. dla elementu treści bloku zajeć - przekierowanie na blok
-        if (e.target.classList.contains('tresc-bloku-zajec')) {
-            this.stan_kursora.nazwa_klasy = 'blok-zajec';
-            this.stan_kursora.element = e.targe.parentNode;
-        }
 
         // ustawienie parametrów w zależności od tego co kliknięto
 
@@ -472,4 +481,4 @@ class CMenadzerPodzialuGodzin {
     }
 }
 
-var menadzer = new CMenadzerPodzialuGodzin();
+var kontroler = new CKontrolerPodzialuGodzin();

@@ -33,6 +33,11 @@ class COknoModalne {
         this.element.querySelector('#zamknij').addEventListener('click', () => this.anulujWysylanie());
         this.element.querySelector('#anuluj').addEventListener('click', () => this.anulujWysylanie());
         this.element.querySelector('#zapisz').addEventListener('click', () => this.wyslijDane());
+        
+        // przycisk usuń otryzmuje event tylko jeśli id jest ustawione, jeśli brak id wyłącz widoczność przycisku
+        var usun = this.element.querySelector('#usun');
+        if (this.id) usun.addEventListener('click', () => this.zglosUsuniecie());
+        else usun.style.display = 'none';
 
         // wypełnij pola select danymi
         if (parametry.opcje) Object.keys(parametry.opcje).forEach(nazwa_pola => {
@@ -40,7 +45,14 @@ class COknoModalne {
             // znajdź właściwe pole select
             var select = this.element.querySelector(`#${nazwa_pola}`);
 
-            Object.keys(parametry.opcje[nazwa_pola]).forEach(id_opcji => {
+            Object.keys(parametry.opcje[nazwa_pola]).forEach((id_opcji, i) => {
+                // dla pól bez wymagania ustawionej wartości dodaj dodatkowo pustą opcję
+                if (i == 0 && !select.getAttribute('wymog')) {
+                    var op = document.createElement('option');
+                    op.innerHTML = '';
+                    op.value = '';
+                    select.appendChild(op);
+                }
                 var op = document.createElement('option');
                 op.innerHTML = parametry.opcje[nazwa_pola][id_opcji].nazwa;
                 op.value = id_opcji;
@@ -146,6 +158,12 @@ class COknoModalne {
     anulujWysylanie() {
 
         this.kontroler.anulowanieEdycji(this.nazwa_danych, this.id, this.odczytajDane().dane);
+        this.zamknijOkno();
+    }
+
+    // wysłanie do kontrolera informacji o usunięciu rekordu przez użytkownika
+    zglosUsuniecie() {
+        this.kontroler.usunRekord(this.nazwa_danych, this.id);
         this.zamknijOkno();
     }
 
