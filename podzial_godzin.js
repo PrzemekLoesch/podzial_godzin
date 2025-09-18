@@ -142,7 +142,10 @@ class CKontrolerPodzialuGodzin {
             wpis.querySelector('.wpis-listy-rekordow').id = `${nazwa_danych}_${id}`;
             wpis.querySelector('.nazwa-rekordu').innerHTML = dane.nazwa;
             wpis.querySelector('.przycisk-edycji').addEventListener('click', () => this.otworzOkno(nazwa_danych, id));
-            if (dane.kolor) wpis.querySelector('.wpis-listy-rekordow').style.backgroundColor = dane.kolor;
+            if (dane.kolor) {
+                console.log('Dane.kolor:', dane.kolor);
+                wpis.querySelector('.wpis-listy-rekordow').style.backgroundColor = dane.kolor;
+            }
 
             // dopisz pozycję do listy
             document.querySelector(`#lista_${nazwa_danych}`).appendChild(wpis);

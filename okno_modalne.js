@@ -33,6 +33,25 @@ class COknoModalne {
         this.element.querySelector('#zamknij').addEventListener('click', () => this.anulujWysylanie());
         this.element.querySelector('#anuluj').addEventListener('click', () => this.anulujWysylanie());
         this.element.querySelector('#zapisz').addEventListener('click', () => this.wyslijDane());
+
+        // jeśli występuje widget color włącz jego eventy
+        var widget_color = this.element.querySelector('input[id="kolor"]');
+        if (widget_color) {
+            const wybor_koloru = this.element.querySelector('.wybor-koloru');
+            widget_color.addEventListener('click', () => {
+                console.log('click');
+                if (wybor_koloru.style.display === 'none') wybor_koloru.style.removeProperty('display');
+                else wybor_koloru.style.display = 'none';
+            });
+            wybor_koloru.addEventListener('click', e => {
+                if (e.target.className == 'probka-koloru') {
+                    widget_color.style.backgroundColor = e.target.style.backgroundColor;
+                    widget_color.style.color = e.target.style.backgroundColor;
+                    widget_color.value = e.target.style.backgroundColor;
+                    wybor_koloru.style.display = 'none';
+                }
+            });
+        }
         
         // przycisk usuń otryzmuje event tylko jeśli id jest ustawione, jeśli brak id wyłącz widoczność przycisku
         var usun = this.element.querySelector('#usun');
@@ -61,7 +80,14 @@ class COknoModalne {
         });
 
         // jeśli podano dane wypełnij widgety danymi
-        if (this.dane) Array.from(this.element.querySelectorAll('input, select')).forEach(widget => widget.value = this.dane[widget.id] || '');
+        if (this.dane) Array.from(this.element.querySelectorAll('input, select')).forEach(widget => {
+            if (widget.id == 'kolor') {
+                
+            }
+            else {
+                widget.value = this.dane[widget.id] || '';
+            }
+        });
         
         // jeśli nie podano danych ustaw widgety select na brak wyboru
         else Array.from(this.element.querySelectorAll('select')).forEach(widget => widget.value = '');
@@ -192,6 +218,7 @@ class COknoModalne {
         // dopisz dane, których nie było w widgetach ale zostały podane przez właściciela
         if (this.dane) Object.keys(this.dane).forEach(klucz => {if (!dane.hasOwnProperty(klucz)) dane[klucz] = this.dane[klucz]});
 
+        console.log('Dane: ', dane);
         return {dane: dane, poprawnosc: poprawnosc};
     }
 }
