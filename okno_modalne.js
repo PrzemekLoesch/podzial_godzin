@@ -35,24 +35,28 @@ class COknoModalne {
         this.element.querySelector('#zapisz').addEventListener('click', () => this.wyslijDane());
 
         // jeśli występuje widget color włącz jego eventy
-        var widget_color = this.element.querySelector('input[id="kolor"]');
-        if (widget_color) {
+        var widget_kolor = this.element.querySelector('input[id="kolor"]');
+        if (widget_kolor) {
             const wybor_koloru = this.element.querySelector('.wybor-koloru');
-            widget_color.addEventListener('click', () => {
+            widget_kolor.addEventListener('click', () => {
                 if (wybor_koloru.style.display === 'none') wybor_koloru.style.removeProperty('display');
                 else wybor_koloru.style.display = 'none';
             });
             wybor_koloru.addEventListener('click', e => {
                 if (e.target.className == 'probka-koloru') {
-                    widget_color.style.backgroundColor = e.target.style.backgroundColor;
-                    widget_color.style.color = e.target.style.backgroundColor;
-                    widget_color.value = e.target.style.backgroundColor;
+                    widget_kolor.style.backgroundColor = e.target.style.backgroundColor;
+                    widget_kolor.style.color = e.target.style.backgroundColor;
+                    widget_kolor.value = e.target.style.backgroundColor;
                     wybor_koloru.style.display = 'none';
                 }
             });
+            if (this.dane && this.dane.kolor) {
+                widget_kolor.style.color = this.dane.kolor;
+                widget_kolor.style.backgroundColor = this.dane.kolor;
+            } 
         }
         
-        // przycisk usuń otryzmuje event tylko jeśli id jest ustawione, jeśli brak id wyłącz widoczność przycisku
+        // przycisk usuń otrzyzmuje event tylko jeśli id jest ustawione, jeśli brak id wyłącz widoczność przycisku
         var usun = this.element.querySelector('#usun');
         if (this.id) usun.addEventListener('click', () => this.zglosUsuniecie());
         else usun.style.display = 'none';

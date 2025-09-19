@@ -167,7 +167,7 @@ button {
 
 .blok-zajec {
     width: 100%;
-    background-color: lightyellow;
+    background-color: hsl(0 0 90);
     border: 1px solid gray;
     z-index: 2;
     position: absolute;

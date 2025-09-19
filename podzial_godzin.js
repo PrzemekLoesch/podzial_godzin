@@ -184,7 +184,7 @@ class CKontrolerPodzialuGodzin {
         element_dnia.appendChild(blok_zajec);
         blok_zajec = element_dnia.querySelector('.blok-zajec:not([id])');
         blok_zajec.id = `blok_zajec_${id}`;
-
+ 
         this.aktualizujBlokZajec(blok_zajec, dane);
 
         return blok_zajec;
@@ -202,6 +202,7 @@ class CKontrolerPodzialuGodzin {
         blok_zajec.querySelector('.blok-koniec').innerHTML = dane.koniec;
         blok_zajec.style.top = gora + 'px';
         blok_zajec.style.height = wysokosc + 'px';
+        if (dane.uczen) blok_zajec.style.backgroundColor = this.dane.uczniowie.rekordy[dane.uczen].kolor; 
 
         // aktualizuj opis danych, które podano
         if (dane.przedmiot) blok_zajec.querySelector('.blok-przedmiot').innerHTML = this.dane.przedmioty.rekordy[dane.przedmiot].nazwa;
