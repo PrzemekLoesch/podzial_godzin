@@ -85,3 +85,7 @@
 - [ ] w oknie edycji dziecka dodać color picker do wyboru koloru
 - [ ] kolorować bloki zajęć i wpisy według koloru dziecka
 - [ ] aktualizacja danych dostosować do aktualnego schematu wpis
+
+# 19.09.2025
+- [x] nie zapisuje się kolor uczniów
+- [ ] ustawiać kolor dla input przy tworzeniu okna modalnego jeśli był zapisany w danych

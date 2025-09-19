@@ -39,7 +39,6 @@ class COknoModalne {
         if (widget_color) {
             const wybor_koloru = this.element.querySelector('.wybor-koloru');
             widget_color.addEventListener('click', () => {
-                console.log('click');
                 if (wybor_koloru.style.display === 'none') wybor_koloru.style.removeProperty('display');
                 else wybor_koloru.style.display = 'none';
             });
@@ -80,14 +79,7 @@ class COknoModalne {
         });
 
         // jeśli podano dane wypełnij widgety danymi
-        if (this.dane) Array.from(this.element.querySelectorAll('input, select')).forEach(widget => {
-            if (widget.id == 'kolor') {
-                
-            }
-            else {
-                widget.value = this.dane[widget.id] || '';
-            }
-        });
+        if (this.dane) Array.from(this.element.querySelectorAll('input, select')).forEach(widget => widget.value = this.dane[widget.id] || '');
         
         // jeśli nie podano danych ustaw widgety select na brak wyboru
         else Array.from(this.element.querySelectorAll('select')).forEach(widget => widget.value = '');
@@ -218,7 +210,6 @@ class COknoModalne {
         // dopisz dane, których nie było w widgetach ale zostały podane przez właściciela
         if (this.dane) Object.keys(this.dane).forEach(klucz => {if (!dane.hasOwnProperty(klucz)) dane[klucz] = this.dane[klucz]});
 
-        console.log('Dane: ', dane);
         return {dane: dane, poprawnosc: poprawnosc};
     }
 }
