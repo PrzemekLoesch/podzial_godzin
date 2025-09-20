@@ -94,4 +94,6 @@
 - [x] zmienić numerację dni - od 1
 - [x] wczytywać atrybut wolne_id dla wszytkich danych są wczytywane tylko rekordy
 - [x] zwalniać obiekt stan_kursora po mouse up
-- [x] rozpoczynać przesuwanie po mouse down na wszytkich dzieciach 
+- [x] rozpoczynać przesuwanie po mouse down na wszytkich dzieciach
+- [x] analiza kolizji i przesuwanie do kolejnych kolumn
+- [ ] zwężanie elementów w zależności od liczby kolumn

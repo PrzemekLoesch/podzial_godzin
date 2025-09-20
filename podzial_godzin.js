@@ -96,8 +96,6 @@ class CKontrolerPodzialuGodzin {
     }
 
     usunRekord(nazwa_danych, id) {
-        console.log('Nazwa danych: ', nazwa_danych);
-        console.log('Id: ', id);
         delete this.dane[nazwa_danych].rekordy[id];
         if (nazwa_danych == 'zajecia') document.querySelector(`#blok_zajec_${id}`).remove();
         else document.querySelector(`#${nazwa_danych}_${id}`).remove();
@@ -364,6 +362,9 @@ class CKontrolerPodzialuGodzin {
 
             // kursor grabbing
             this.stan_kursora.element.style.cursor = 'grabbing';
+
+            // rozwiązanie kolizji z innymi zajęciami
+            this.rozwiazKolizjeZajec(this.stan_kursora.element.parentNode.getAttribute('num'));
         }
 
         // rozpoczęto przeciąganie po planie dnia - utworzenie nowego bloku zajęć
@@ -400,6 +401,9 @@ class CKontrolerPodzialuGodzin {
             if (id == 'null') {
                 blok.querySelector('.blok-przedmiot').innerHTML = wymiary.wysokosc;
             }
+
+            // rozwiązanie kolizji z innymi zajęciami
+            this.rozwiazKolizjeZajec(blok.parentNode.getAttribute('num'));
         }
     }
 
@@ -464,6 +468,7 @@ class CKontrolerPodzialuGodzin {
         return pozycja;
     }
 
+    // oblicza i zwraca obiekt {poczate, koniec, wysokosc} z wymiarami bloku zajęć liczonymi w pikselach
     wymiaryPrzeciaganegoBlokuZajec(clientY) {
         
         // o ile przesunięto mysz w pionie od pierwszego mouseDown
@@ -490,6 +495,60 @@ class CKontrolerPodzialuGodzin {
             koniec: poczatek + wysokosc,
             wysokosc: wysokosc
         }
+    }
+
+    // ustawia szrokość i położenie zajęć, tak, żeby się na siebie nie nakładały
+    rozwiazKolizjeZajec(numer_dnia) {
+
+        // znajdź wszystkie bloki zajęć z tego dnia
+        var bloki = Array.from(document.querySelector(`.plan-dnia[num="${numer_dnia}"]`).querySelectorAll('.blok-zajec'));
+
+        // posortuj bloki od najwyżej położonego
+        bloki.sort((a, b) => parseInt(a.style.top.slice(0, -2)) - parseInt(b.style.top.slice(0, -2)));
+
+        // założenie wstępne ustawienia bloku w pierwszej kolumnie
+        bloki.forEach(blok => blok.kolumna = 1);
+
+        // przejdź przez wszytkie bloki
+        bloki.forEach((blok, i) => {
+
+            // przesuwaj o jedną kolumę dopóki występuje kolizja z innymi blokami zajęć już rozstawionymi (do obecnego indeksu)
+            while (this.sprawdzKolizjeZajec(blok, bloki.slice(0, i))) blok.kolumna ++;
+
+            // po usunięciu kolizji ustaw w stylu położenie wg kolumny
+            blok.style.left = (blok.kolumna - 1) * 20 + 'px';
+            blok.style.left = (blok.kolumna - 1) * 20 + 'px';
+        });
+    }
+
+    // zwraca wynik testu na kolizję z innymi blokami: true = występuje kolizja
+    sprawdzKolizjeZajec(blok, bloki) {
+
+        // góra i dół analizowanego bloku - obliczenia jednokrotne
+        var gora_1 = parseInt(blok.style.top.slice(0,-2));
+        var dol_1 = gora_1 + parseInt(blok.style.height.slice(0, -2));
+
+        // kolizja jest wtedy, gdy: bloki są w tej samej kolumnie i pierwszy kończy się niżej niż zaczyna drugi lub odwrotnie
+        var kolidujacy = bloki.find(blok_porownywany => {
+
+            // jeśli bloki są w różnych kolumnach pomiń test dla tego bloku i przejdź do 
+            if (blok.kolumna != blok_porownywany.kolumna) return false;
+            
+            // góra i dół bloku porównywanego
+            var gora_2 = parseInt(blok_porownywany.style.top.slice(0,-2));
+            var dol_2 = gora_2 + parseInt(blok_porownywany.style.height.slice(0, -2));
+
+            // jeśli porównywany blok zaczyna się powyżej a kończy poniżej początku tego drugiego
+            if (gora_2 <= gora_1 && dol_2 > gora_1) return true;
+
+            // jeśli porównywany blok zaczyna się poniżej początku i powyżej końca tego drugiego
+            if (gora_2 >= gora_1 && dol_1 > gora_2) return true;
+
+            // test nie zwrócił kolizji - wynik false
+            return false;
+        });
+
+        return kolidujacy ? true : false;
     }
 }
 

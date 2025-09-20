@@ -180,6 +180,8 @@ button {
     flex-wrap: wrap;
     column-gap: 5px;
     align-content: flex-start;
+    transition: 0.1s;
+    transition-property: width, left;
 }
 
 .blok-zajec > div {
