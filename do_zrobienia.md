@@ -83,9 +83,15 @@
 - [ ] wraz z usunieciem lokalizacji i nauczyciela usuwać opisy w blokaczh zajęć i ustawiać atrybutych nauczyciel i lokalizacja na null
 - [ ] zmienić nazwę danch lokalizacje na miejsca i atrybutów zajeć lokalizacja na miejsce
 - [x] w oknie edycji dziecka dodać color picker do wyboru koloru
-- [ ] kolorować bloki zajęć i wpisy według koloru dziecka
-- [ ] aktualizacja danych dostosować do aktualnego schematu wpis
+- [x] kolorować bloki zajęć i wpisy według koloru dziecka
+- [x] aktualizacja danych dostosować do aktualnego schematu wpis
 
 # 19.09.2025
 - [x] nie zapisuje się kolor uczniów
 - [x] ustawiać kolor dla input przy tworzeniu okna modalnego jeśli był zapisany w danych
+
+# 20.09.2025
+- [x] zmienić numerację dni - od 1
+- [x] wczytywać atrybut wolne_id dla wszytkich danych są wczytywane tylko rekordy
+- [x] zwalniać obiekt stan_kursora po mouse up
+- [x] rozpoczynać przesuwanie po mouse down na wszytkich dzieciach 

@@ -253,15 +253,21 @@ class CKontrolerPodzialuGodzin {
         this.resetujDane();
         
         Object.keys(dane).forEach(nazwa_danych => {
+            
+            // tworzenie bloków zajęć
             if (nazwa_danych == 'zajecia') {
                 Object.keys(dane.zajecia.rekordy).forEach(id => this.zapiszZajecia(id, dane.zajecia.rekordy[id]));
             }
 
+            // tworzenie list rekordów
             else {
                 document.getElementById(`lista_${nazwa_danych}`).innerHTML = '';
                 Object.keys(dane[nazwa_danych].rekordy).forEach(id => this.zapiszDane(nazwa_danych, id, dane[nazwa_danych].rekordy[id]));
                 this.dane[nazwa_danych].wolne_id = dane[nazwa_danych].wolne_id;
             }
+
+            // ustawienie wolnego id dla każdej grupy danych
+            this.dane[nazwa_danych].wolne_id = dane[nazwa_danych].wolne_id;
         });
     }
 
@@ -298,6 +304,8 @@ class CKontrolerPodzialuGodzin {
 
     obsluzMouseDown(e) {
 
+        this.stan_kursora = {};
+
         // od tego mmntu adresuj wszystkie eventy dotyczące ruchu myszy do tej klasy
         document.onmouseup = e => this.obsluzMouseUp(e);
         document.onmousemove = e => this.obsluzMouseMove(e);
@@ -306,7 +314,7 @@ class CKontrolerPodzialuGodzin {
         this.stan_kursora.poczatek_przeciagania = e.clientY;
         this.stan_kursora.przeciagnieto = false;
         
-        // ustalenie jaki element naciśnięßo i ew. przekierowanie na rodzica
+        // ustalenie jaki element naciśnięto i ew. przekierowanie na rodzica
 
         // zapisanie klasy i elementu dla naciśniętych elementów, które bezpośrednio obsługują akcję
         ['blok-zajec', 'uchwyt-bloku', 'plan-dnia'].forEach(nazwa_klasy => {if (e.target.classList.contains(nazwa_klasy)) {
@@ -315,7 +323,7 @@ class CKontrolerPodzialuGodzin {
         }});
 
         // zapisanie klasy i elementu dla naciśniętych elementów, zagnieżdżonych - zapisanie danych bloku zajęć
-        ['blok-poczatek', 'blok-koniec', 'blok-przedmiot', 'blok-uczen', 'blok-nauczyciel', 'blok-lokalizacja'].forEach(nazwa_klasy => {if (e.target.classList.contains(nazwa_klasy)) {
+        ['blok-poczatek', 'blok-koniec', 'blok-przedmiot', 'blok-uczen', 'blok-nauczyciel', 'blok-lokalizacja', 'blok-czas'].forEach(nazwa_klasy => {if (e.target.classList.contains(nazwa_klasy)) {
             this.stan_kursora.nazwa_klasy = 'blok-zajec';
             this.stan_kursora.element = e.target.closest('.blok-zajec');
         }});
