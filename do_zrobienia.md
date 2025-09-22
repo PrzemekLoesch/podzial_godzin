@@ -7,7 +7,6 @@
 - [x] budować strukturę JSON na podstawie zawartości kalendarza
 - [x] pokazać wszystkie dodane dzieci i przedmioty na liście, wybierać z niej aktualne dane poprzez zaznaczenie
 - [x] checkboxy do zaznaczania, które dzieci mają być pokazane na podziale godzin
-- [ ] dodatkowe div'y dla każdego dziecka w div widoku dnia
 - [x] lista uczniów z możliwością dodawania, edycji i zaznaczenia opcji wyświetlania na podziałgodzinie
 - [x] dodawanie wizualne poprzez kliknięcie na pole dnia
 
@@ -22,7 +21,7 @@
 - [x] oznaczyć wymagane pola atrybutem 'wymagane'
 - [x] ustawiać niewybrane pozycje select jako puste
 - [x] zapisywać dane w json (pobranie pliku) oraz odczyt danych z przesłanego pliku
-- [ ] zaokrąglać wartości godzin wskazywane kursorem do 5 minut
+- [x] zaokrąglać wartości godzin wskazywane kursorem do 5 minut
 
 # 8.09.2025
 - [x] przy przesuwaniu korzystać z bezwzględnych współrzędnych myszy a nie z e.target
@@ -65,7 +64,7 @@
 - [x] adresować kliknięcia na atrybutach bloku zajęć do bloku zajęć - otwierać okno edycji
 - [x] wyłączać styl kursor grabbing po przeciągnięciu bloku zajęć
 - [ ] rozwiązać sposób prezentacji dla treści, która się nie mieści w bloku zajęć
-- [ ] umożliwić przeciąganie zajęć pomiędzy dniami
+- [x] umożliwić przeciąganie zajęć pomiędzy dniami
 - [x] uniemożliwić zmniejszanie czasu zajęć poniżej zera w wyniku przeciągania uchwytów
 - [x] usunąć uchwyt górny
 
@@ -80,8 +79,7 @@
 - [x] zmienić nazwę menadżer na kontroler
 - [ ] zwiększyć wysokość kalendarza - nie mieści się opis zajęć
 - [ ] wraz z usunięciem ucznia i przedmiotu usuwać również zajęcia
-- [ ] wraz z usunieciem lokalizacji i nauczyciela usuwać opisy w blokaczh zajęć i ustawiać atrybutych nauczyciel i lokalizacja na null
-- [ ] zmienić nazwę danch lokalizacje na miejsca i atrybutów zajeć lokalizacja na miejsce
+- [ ] wraz z usunieciem lokalizacji i nauczyciela usuwać opisy w blokach zajęć i ustawiać atrybutych nauczyciel i lokalizacja na null
 - [x] w oknie edycji dziecka dodać color picker do wyboru koloru
 - [x] kolorować bloki zajęć i wpisy według koloru dziecka
 - [x] aktualizacja danych dostosować do aktualnego schematu wpis
@@ -96,4 +94,10 @@
 - [x] zwalniać obiekt stan_kursora po mouse up
 - [x] rozpoczynać przesuwanie po mouse down na wszytkich dzieciach
 - [x] analiza kolizji i przesuwanie do kolejnych kolumn
-- [ ] zwężanie elementów w zależności od liczby kolumn
+- [x] zwężanie elementów w zależności od liczby kolumn
+
+# 21.09.2025
+- [x] rozwiązywanie kolizji po wczytaniu pliku
+- [x] rozwiązanie kolizji po usunięciu bloku
+- [x] zmiana koloru wszytkich bloków zajęć po zmianie koloru dziecka
+- [x] zmiana opisu wszystkich bloków zajęć po zmienie wartości rekordów

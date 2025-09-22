@@ -15,8 +15,11 @@ class CKontrolerPodzialuGodzin {
 
         // plansza z rozkładem zajęć i jej eventy
         var kalendarz = document.querySelector('.widok-tygodnia');
-        kalendarz.addEventListener('click', e => this.obsluzKliniecie(e));
+        kalendarz.addEventListener('click', e => this.obsluzMouseClick(e));
         kalendarz.addEventListener('mousedown', e => this.obsluzMouseDown(e));
+        
+        // dodaj dla każdego elementu planu dnia event wjechania kursorem - do przeoszenia zajęć
+        Array.from(kalendarz.querySelectorAll('.plan-dnia')).forEach(plan_dnia => plan_dnia.addEventListener('mouseenter', e => this.obsluzMouseEnter(e)));
 
         // zapis pliku danych
         document.getElementById('pobierz_dane').addEventListener('click', () => this.pobierzPlikDanych());
@@ -96,9 +99,18 @@ class CKontrolerPodzialuGodzin {
     }
 
     usunRekord(nazwa_danych, id) {
-        delete this.dane[nazwa_danych].rekordy[id];
-        if (nazwa_danych == 'zajecia') document.querySelector(`#blok_zajec_${id}`).remove();
+        
+        // dla zajęć uzuń blok i ponownie rozwiąż kolizje dla tego dnia
+        if (nazwa_danych == 'zajecia') {
+            document.querySelector(`#blok_zajec_${id}`).remove();
+            this.rozwiazKolizjeZajec(this.dane[nazwa_danych].rekordy[id].dzien);
+        }
+
+        // dla pozostałych usuń wpis
         else document.querySelector(`#${nazwa_danych}_${id}`).remove();
+
+        // usuń rekord
+        delete this.dane[nazwa_danych].rekordy[id];
     }
 
     // dla danych: uczniowie, przedmioty, nauczyciele, lokalizacje - tworzy nowe rekordy w obiekcie dane lub aktualizuje rekord jeśli podano id
@@ -143,6 +155,15 @@ class CKontrolerPodzialuGodzin {
 
         // aktualizuj lub dodaj rekord w obiekcie danych
         this.dane[nazwa_danych].rekordy[id] = dane;
+
+        // aktualizuj kolory jeśli w danych był zawarty atrybut kolor
+        if (dane.kolor) Array.from(document.querySelectorAll(`[kolor="${nazwa_danych}_${id}"]`)).forEach(element => element.style.backgroundColor = dane.kolor);
+
+        // aktualizuj pozostałe parametry
+        Object.keys(dane).forEach(atrybut => {
+            Array.from(document.querySelectorAll(`[ref="${nazwa_danych}_${atrybut}_${id}"]`)).forEach(element => element.innerHTML = dane[atrybut]);
+        });
+        
     }
 
     // funkcja specjalistyczna dla danych zajęć:
@@ -166,6 +187,9 @@ class CKontrolerPodzialuGodzin {
 
         // jeśli nie występuje (po odczycie danych z pliku) utwórz ten blok i od razu ustaw jego dane
         else this.utworzBlokZajec(id, dane);
+
+        // rozwiąż kolizje zajęć dla tego dnia
+        this.rozwiazKolizjeZajec(dane.dzien);
         
         // aktualizacja rekordu
         this.dane.zajecia.rekordy[id] = dane;
@@ -182,6 +206,7 @@ class CKontrolerPodzialuGodzin {
         element_dnia.appendChild(blok_zajec);
         blok_zajec = element_dnia.querySelector('.blok-zajec:not([id])');
         blok_zajec.id = `blok_zajec_${id}`;
+        blok_zajec.setAttribute('kolor', `uczniowie_${dane.uczen}`);
  
         this.aktualizujBlokZajec(blok_zajec, dane);
 
@@ -203,9 +228,21 @@ class CKontrolerPodzialuGodzin {
         if (dane.uczen) blok_zajec.style.backgroundColor = this.dane.uczniowie.rekordy[dane.uczen].kolor; 
 
         // aktualizuj opis danych, które podano
-        if (dane.przedmiot) blok_zajec.querySelector('.blok-przedmiot').innerHTML = this.dane.przedmioty.rekordy[dane.przedmiot].nazwa;
-        if (dane.lokalizacja) blok_zajec.querySelector('.blok-lokalizacja').innerHTML = dane.lokalizacja ? this.dane.lokalizacje.rekordy[dane.lokalizacja].nazwa : '';
-        if (dane.nauczyciel) blok_zajec.querySelector('.blok-nauczyciel').innerHTML = dane.nauczyciel ? this.dane.nauczyciele.rekordy[dane.nauczyciel].nazwa : '';
+        if (dane.przedmiot) {
+            var przedmiot = blok_zajec.querySelector('.blok-przedmiot');
+            przedmiot.innerHTML = this.dane.przedmioty.rekordy[dane.przedmiot].nazwa;
+            przedmiot.setAttribute('ref', `przedmioty_nazwa_${dane.przedmiot}`);
+        }
+        if (dane.lokalizacja) {
+            var lokalizacja = blok_zajec.querySelector('.blok-lokalizacja');
+            lokalizacja.innerHTML = this.dane.lokalizacje.rekordy[dane.lokalizacja].nazwa;
+            lokalizacja.setAttribute('ref', `lokalizacje_nazwa_${dane.lokalizacja}`);
+        }
+        if (dane.nauczyciel) {
+            var nauczyciel = blok_zajec.querySelector('.blok-nauczyciel');
+            nauczyciel.innerHTML = this.dane.nauczyciele.rekordy[dane.nauczyciel].nazwa;
+            nauczyciel.setAttribute('ref', `nauczyciele_nazwa_${dane.nauczyciel}`);
+        }
     }
 
     async pobierzPlikDanych() {
@@ -277,9 +314,9 @@ class CKontrolerPodzialuGodzin {
 
     
     // rozpoczyna edycję elementu kalendarza
-    obsluzKliniecie(e) {
+    obsluzMouseClick(e) {
 
-        // jeśli rozpocząto tryb przeciągania i rzeczywiście przeciągnięto ne rób nic - metoda obsluzMouseUp zajmie się dodaniem zajęć
+        // jeśli wcześniej odbyło się przeciąganie - nie rób nic - akcje zostały obsłużone przez mouseMove i mouseUp
         if (this.stan_kursora.przeciagnieto) return;
 
         // edycja istniejących zajęć
@@ -287,8 +324,6 @@ class CKontrolerPodzialuGodzin {
             this.otworzOknoZajec(e.target.closest('.blok-zajec').id.split('_')[2]);
         }
         
-        // if (e.target.classList.contains('blok-zajec')) this.otworzOknoZajec(e.target.id.split('_')[2]);
-
         // dodanie zajęć
         else if (e.target.classList.contains('plan-dnia')) {
             var rect = e.target.getBoundingClientRect();
@@ -300,6 +335,7 @@ class CKontrolerPodzialuGodzin {
         this.stan_kursora = {};
     }
 
+    // rejestruje dane naciśniętego elementu na kalendarzu, które decydują co dajej robić w click, move i mouseUp
     obsluzMouseDown(e) {
 
         this.stan_kursora = {};
@@ -374,7 +410,7 @@ class CKontrolerPodzialuGodzin {
             var poczatek = e.clientY - e.target.getBoundingClientRect().top;
             poczatek = Math.floor(poczatek / 5) * 5;
             this.stan_kursora.nazwa_klasy = 'uchwyt-bloku';
-            this.stan_kursora.pozycja_poczatkowa_zajec = poczatek;
+            this.stan_kursora.pozycja_poczatkowa_zajec = poczatek;         
             this.stan_kursora.poczatek_przeciagania = e.clientY;
             this.stan_kursora.wysokosc_poczatkowa_zajec = 0;
 
@@ -399,7 +435,7 @@ class CKontrolerPodzialuGodzin {
             // dla bloku, który jest dopiero tworzony zamiast nazwy zajęć podaj czas ich trwania
             var id = blok.id.split('_')[2];
             if (id == 'null') {
-                blok.querySelector('.blok-przedmiot').innerHTML = wymiary.wysokosc;
+                blok.querySelector('.blok-przedmiot').innerHTML = `(${wymiary.wysokosc >= 60 ? Math.floor(wymiary.wysokosc / 60) + ' godz. ' : ''}${wymiary.wysokosc % 60} min.)`;
             }
 
             // rozwiązanie kolizji z innymi zajęciami
@@ -423,8 +459,10 @@ class CKontrolerPodzialuGodzin {
                 blok.style.removeProperty('cursor');
                 var poczatek = blok.querySelector('.blok-poczatek').innerHTML;
                 var koniec = blok.querySelector('.blok-koniec').innerHTML;
-                this.dane.zajecia.rekordy[blok.id.split('_')[2]].poczatek = poczatek;
-                this.dane.zajecia.rekordy[blok.id.split('_')[2]].koniec = koniec;
+                var rekord = this.dane.zajecia.rekordy[blok.id.split('_')[2]];
+                rekord.poczatek = poczatek;
+                rekord.koniec = koniec;
+                rekord.dzien = blok.closest('.plan-dnia').getAttribute('num');
             }
 
             // zmiana dolnego położenia zajęć
@@ -448,6 +486,26 @@ class CKontrolerPodzialuGodzin {
                     this.dane.zajecia.rekordy[blok.id.split('_')[2]].koniec = koniec;
                 }
             }
+        }
+
+        // wyzeruj stan kursora - pozostaw tylko flagę przeciągnięcia w swoim stanie, żeby prawidłowo rozpoznać działanie w mouseClick
+        this.stan_kursora = {przeciagnieto: this.stan_kursora.przeciagnieto};
+    }
+
+    // obsługa przenoszenia bloku zajęć na inne dni
+    obsluzMouseEnter(e) {
+
+        // jeśli wjechano na ten element kursorem w trakcie przeciągania bloku zajęć, który należy do innego dnia
+        if (this.stan_kursora.nazwa_klasy == 'blok-zajec' && !e.target.contains(this.stan_kursora.element)) {
+            
+            // zapamietaj dotychczasowy dzień, do którego przypisany jest blok zajęć
+            var dzien = this.stan_kursora.element.closest('.plan-dnia').getAttribute('num');
+            
+            // przypisz blok zajęć do elemntu dnia, który otrzymał event mouseenter
+            e.target.appendChild(this.stan_kursora.element);
+
+            // uporządkuj poprzedni dzień
+            this.rozwiazKolizjeZajec(dzien);
         }
     }
 
@@ -487,9 +545,11 @@ class CKontrolerPodzialuGodzin {
             if (wysokosc < 5) wysokosc = 5;
         }
 
+        // zaokrąglenie do wielokrotności 5px
         poczatek = Math.floor(poczatek / 5) * 5;
         wysokosc = Math.floor(wysokosc / 5) * 5;
 
+        // zwróc obiekt z atrybutami wymiarów
         return {
             poczatek: poczatek,
             koniec: poczatek + wysokosc,
@@ -507,17 +567,33 @@ class CKontrolerPodzialuGodzin {
         bloki.sort((a, b) => parseInt(a.style.top.slice(0, -2)) - parseInt(b.style.top.slice(0, -2)));
 
         // założenie wstępne ustawienia bloku w pierwszej kolumnie
-        bloki.forEach(blok => blok.kolumna = 1);
+        bloki.forEach(blok => {
+            blok.kolumna = 0;
+            blok.sasiedzi = 0;
+        });
 
         // przejdź przez wszytkie bloki
         bloki.forEach((blok, i) => {
 
             // przesuwaj o jedną kolumę dopóki występuje kolizja z innymi blokami zajęć już rozstawionymi (do obecnego indeksu)
             while (this.sprawdzKolizjeZajec(blok, bloki.slice(0, i))) blok.kolumna ++;
+        });
 
-            // po usunięciu kolizji ustaw w stylu położenie wg kolumny
-            blok.style.left = (blok.kolumna - 1) * 20 + 'px';
-            blok.style.left = (blok.kolumna - 1) * 20 + 'px';
+        // przejdź jeszcze raz przez bloki i ustaw ich atrybuty stylu
+        bloki.forEach(blok => {
+
+            // jeśli blok ma sąsiedów ustaw jego zredukowaną szerokość i przesuń na właściwą kolumnę
+            if (blok.sasiedzi) {
+                var szerokosc_bloku = 100 / (blok.sasiedzi + 1);
+                blok.style.left = blok.kolumna * szerokosc_bloku + '%';
+                blok.style.width = szerokosc_bloku + '%';
+            }
+
+            // położenie bez przesunięcia i pełna szerokość
+            else {
+                blok.style.left = '0%';
+                blok.style.width = '100%';
+            }
         });
     }
 
@@ -539,12 +615,20 @@ class CKontrolerPodzialuGodzin {
             var dol_2 = gora_2 + parseInt(blok_porownywany.style.height.slice(0, -2));
 
             // jeśli porównywany blok zaczyna się powyżej a kończy poniżej początku tego drugiego
-            if (gora_2 <= gora_1 && dol_2 > gora_1) return true;
+            if (gora_2 <= gora_1 && dol_2 > gora_1) {
+                blok.sasiedzi ++;
+                blok_porownywany.sasiedzi ++;
+                return true;
+            }
 
             // jeśli porównywany blok zaczyna się poniżej początku i powyżej końca tego drugiego
-            if (gora_2 >= gora_1 && dol_1 > gora_2) return true;
+            if (gora_2 >= gora_1 && dol_1 > gora_2) {
+                blok.sasiedzi ++;
+                blok_porownywany.sasiedzi ++;
+                return true;
+            }
 
-            // test nie zwrócił kolizji - wynik false
+            // nie znaleziono kolizji - zwróć false
             return false;
         });
 
