@@ -101,3 +101,10 @@
 - [x] rozwiązanie kolizji po usunięciu bloku
 - [x] zmiana koloru wszytkich bloków zajęć po zmianie koloru dziecka
 - [x] zmiana opisu wszystkich bloków zajęć po zmienie wartości rekordów
+
+# 22.09.2025
+- [ ] przechowywać w tablicy sąsiedzi nie indeksy lecz wskaźniki elementów (łatwiejszy dostęp do atrybutów sąsiada)
+- [ ] znaleźć największe zgrupowanie elementów (najdłuższa ścieżka - łańcuch połączeń przez atrybut 'lewy')
+- [ ] obliczyć szerokość liczoną w % dla wszystkich elementów należących do tego zgrupowania
+- [ ] obliczać szerokość kolejnych elementów poprzez odliczanie od 100 szerokości wszystkich sąsiadów, do czasu ustawienia wszystkoch szerokości
+- [ ] lub nie liczyć szerokości tylko położenie lewej krawędzi (poprzez łańcuch lewych) i prawej

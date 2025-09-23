@@ -569,7 +569,8 @@ class CKontrolerPodzialuGodzin {
         // założenie wstępne ustawienia bloku w pierwszej kolumnie
         bloki.forEach(blok => {
             blok.kolumna = 0;
-            blok.sasiedzi = 0;
+            blok.sasiedzi = [];
+            blok.lewy = null;
         });
 
         // przejdź przez wszytkie bloki
@@ -583,17 +584,7 @@ class CKontrolerPodzialuGodzin {
         bloki.forEach(blok => {
 
             // jeśli blok ma sąsiedów ustaw jego zredukowaną szerokość i przesuń na właściwą kolumnę
-            if (blok.sasiedzi) {
-                var szerokosc_bloku = 100 / (blok.sasiedzi + 1);
-                blok.style.left = blok.kolumna * szerokosc_bloku + '%';
-                blok.style.width = szerokosc_bloku + '%';
-            }
-
-            // położenie bez przesunięcia i pełna szerokość
-            else {
-                blok.style.left = '0%';
-                blok.style.width = '100%';
-            }
+            blok.style.left = blok.kolumna * 25 + '%';
         });
     }
 
@@ -601,38 +592,43 @@ class CKontrolerPodzialuGodzin {
     sprawdzKolizjeZajec(blok, bloki) {
 
         // góra i dół analizowanego bloku - obliczenia jednokrotne
+        var id_1 = parseInt(blok.id.split('_')[2]);
         var gora_1 = parseInt(blok.style.top.slice(0,-2));
         var dol_1 = gora_1 + parseInt(blok.style.height.slice(0, -2));
 
-        // kolizja jest wtedy, gdy: bloki są w tej samej kolumnie i pierwszy kończy się niżej niż zaczyna drugi lub odwrotnie
-        var kolidujacy = bloki.find(blok_porownywany => {
+        // założenie wstępne
+        var kolizja = false;
 
-            // jeśli bloki są w różnych kolumnach pomiń test dla tego bloku i przejdź do 
-            if (blok.kolumna != blok_porownywany.kolumna) return false;
-            
+        // kolizja jest wtedy, gdy: bloki są w tej samej kolumnie i pierwszy kończy się niżej niż zaczyna drugi lub odwrotnie
+        bloki.forEach(blok_porownywany => {
+
             // góra i dół bloku porównywanego
+            var id_2 = parseInt(blok_porownywany.id.split('_')[2]);
             var gora_2 = parseInt(blok_porownywany.style.top.slice(0,-2));
             var dol_2 = gora_2 + parseInt(blok_porownywany.style.height.slice(0, -2));
 
-            // jeśli porównywany blok zaczyna się powyżej a kończy poniżej początku tego drugiego
-            if (gora_2 <= gora_1 && dol_2 > gora_1) {
-                blok.sasiedzi ++;
-                blok_porownywany.sasiedzi ++;
-                return true;
-            }
+            // jeśli porównywany blok zaczyna się powyżej a kończy poniżej początku tego drugiego lub
+            // jeśli porównywany blok zaczyna się poniżej początku i powyżej końca tego drugiego to znaczy, że zachodzą na siebie
+            if ((gora_2 <= gora_1 && dol_2 > gora_1) || (gora_2 >= gora_1 && dol_1 > gora_2)) {
+                
+                // jeśli bloki zachodzące na siebie wysokością są w tej samej kolumnie - występuja kolizja
+                if (blok.kolumna == blok_porownywany.kolumna) {
+                    
+                    // zapamiętaj dla bloku blok porównywany jako lewego sąsiada (to on wypycha blok na prawo), to może się zmienić podczas dalszej iteracji
+                    blok.lewy = blok_porownywany;
+                    
+                    // ustaw flagę kolizji
+                    kolizja = true;
+                }
 
-            // jeśli porównywany blok zaczyna się poniżej początku i powyżej końca tego drugiego
-            if (gora_2 >= gora_1 && dol_1 > gora_2) {
-                blok.sasiedzi ++;
-                blok_porownywany.sasiedzi ++;
-                return true;
+                // dopisz obustronnie indeksy sąsiadów do listy
+                if (blok.sasiedzi.indexOf(id_2) == -1) blok.sasiedzi.push(id_2);
+                if (blok_porownywany.sasiedzi.indexOf(id_1) == -1) blok_porownywany.sasiedzi.push(id_1);
             }
-
-            // nie znaleziono kolizji - zwróć false
-            return false;
         });
 
-        return kolidujacy ? true : false;
+        // zwróć wynik analizy kolizji
+        return kolizja;
     }
 }
 
