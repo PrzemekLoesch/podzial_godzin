@@ -563,6 +563,8 @@ class CKontrolerPodzialuGodzin {
         // znajdź wszystkie bloki zajęć z tego dnia
         var bloki = Array.from(document.querySelector(`.plan-dnia[num="${numer_dnia}"]`).querySelectorAll('.blok-zajec'));
 
+        if (!bloki.length) return;
+
         // posortuj bloki od najwyżej położonego
         bloki.sort((a, b) => parseInt(a.style.top.slice(0, -2)) - parseInt(b.style.top.slice(0, -2)));
 
@@ -570,60 +572,52 @@ class CKontrolerPodzialuGodzin {
         bloki.forEach(blok => {
             blok.kolumna = 0;
             blok.sasiedzi = [];
-            blok.bloki_po_lewej = [];
             blok.szerokosc = undefined;
         });
 
         // przejdź przez wszytkie bloki
         bloki.forEach((blok, i) => {
-
             // przesuwaj o jedną kolumę dopóki występuje kolizja z innymi blokami zajęć już rozstawionymi (do obecnego indeksu)
             while (this.sprawdzKolizjeZajec(blok, bloki.slice(0, i))) blok.kolumna ++;
         });
 
         // posortuj bloki - najpierw te posiadające największą liczbę przesunięć na prawo (lewych sąsiadów)
-        bloki = bloki.sort((a, b) => b.bloki_po_lewej.length - a.bloki_po_lewej.length);
+        bloki = bloki.sort((a, b) => b.kolumna - a.kolumna);
 
         // przejdź jeszcze raz przez bloki i ustaw ich atrybuty stylu
         bloki.forEach(blok => {
-
             // jeśli blok ma sąsiedów ustaw jego zredukowaną szerokość i przesuń na właściwą kolumnę
             blok.style.left = blok.kolumna * 25 + '%';
+            blok.style.width = '25%';
         });
 
-        var i=0;
-
-        // dopóki wszytkie bloki nie mają ustawionej szerokości
-        while (!bloki.every(blok => blok.szerokosc) && i<1000) {
-
-            i++;
+        // przejdź przez wszytkie bloki, począwszy od przesuniętego najdalej na prawo
+        bloki.forEach(blok => {
             
-            // przejdź przez wszytkie bloki, począwszy od przesuniętego najdalej na prawo
-            bloki.forEach(blok => {
+            // odfiltruj tyko tych sąsiadów, którzy są na lewo
+            var lewi_sasiedzi = blok.sasiedzi.filter(bs => bs.kolumna < blok.kolumna);
 
-                // jeśl blok ma już ustaloną szerokość nie rób nic
-                if (blok.szerokosc) return;
-                
-                // jeśli żaden z lewych sąsiadów nie ma jeszcze ustalonej szerokości
-                if (!blok.bloki_po_lewej.every(bl => bl.szerokosc)) {
-                    var szerokosc = 100 / (blok.bloki_po_lewej.length + 1);
-                    blok.bloki_po_lewej.forEach(bl => {
-                        bl.szerokosc = szerokosc;
-                        bl.innerHTML = bl.szerokosc;
-                    });
-                    blok.szerokosc = szerokosc;
-                    blok.innerHTML = blok.szerokosc;
-                }
+            // jeśli żaden z lewych sąsiadów nie ma jeszcze ustalonej szerokości
+            if (lewi_sasiedzi.every(ls => !ls.szerokosc)) {
+                var szerokosc = 100 / (lewi_sasiedzi.length + 1);
+                this.ustawSzerkoscLewychSasiadow(blok, szerokosc);
+            }
+        });
+    }
 
-                // jeśli blok nie ma jeszcze szerokości ale wszyscy sąsiedzi mają już ustaloną szerokość
-                else if (!blok.szerokosc && blok.sasiedzi.every(bs => bs.szerokosc)) {
-                    blok.szerokosc = 100 - blok.sasiedzi.reduce((suma, akt) => suma + akt.szerokosc, 0);
-                    blok.innerHTML = blok.szerokosc;
-                }
-            });
-        }
-
-        console.log(bloki.map(blok => `${blok.id}: ${blok.szerokosc}`));
+    // iteracyjnie ustawiania szerokości wszytkich lewych sąsiadów bloku
+    ustawSzerkoscLewychSasiadow(blok, szerokosc) {
+        blok.szerokosc = szerokosc;
+        blok.innerHTML = szerokosc;
+        // iteracyjnie powtórz dla sąsiadów
+        blok.sasiedzi.forEach(s => {
+            // tylko w lewą stronę - na niższych kolumnach
+            if (s.kolumna < blok.kolumna && !s.szerokosc) {
+                s.szerokosc = szerokosc;
+                s.innerHTML = szerokosc;
+                this.ustawSzerkoscLewychSasiadow(s, szerokosc);
+            }
+        });
     }
 
     // zwraca wynik testu na kolizję z innymi blokami: true = występuje kolizja
@@ -649,9 +643,6 @@ class CKontrolerPodzialuGodzin {
                 
                 // jeśli bloki zachodzące na siebie wysokością są w tej samej kolumnie - występuja kolizja
                 if (blok.kolumna == blok_porownywany.kolumna) {
-                    
-                    // zapamiętaj dla bloku blok porównywany jako lewego sąsiada (to on wypycha blok na prawo), to może się zmienić podczas dalszej iteracji
-                    blok.bloki_po_lewej.push(blok_porownywany);
                     
                     // ustaw flagę kolizji
                     kolizja = true;
