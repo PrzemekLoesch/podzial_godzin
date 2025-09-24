@@ -570,7 +570,8 @@ class CKontrolerPodzialuGodzin {
         bloki.forEach(blok => {
             blok.kolumna = 0;
             blok.sasiedzi = [];
-            blok.lewy = null;
+            blok.bloki_po_lewej = [];
+            blok.szerokosc = undefined;
         });
 
         // przejdź przez wszytkie bloki
@@ -580,19 +581,55 @@ class CKontrolerPodzialuGodzin {
             while (this.sprawdzKolizjeZajec(blok, bloki.slice(0, i))) blok.kolumna ++;
         });
 
+        // posortuj bloki - najpierw te posiadające największą liczbę przesunięć na prawo (lewych sąsiadów)
+        bloki = bloki.sort((a, b) => b.bloki_po_lewej.length - a.bloki_po_lewej.length);
+
         // przejdź jeszcze raz przez bloki i ustaw ich atrybuty stylu
         bloki.forEach(blok => {
 
             // jeśli blok ma sąsiedów ustaw jego zredukowaną szerokość i przesuń na właściwą kolumnę
             blok.style.left = blok.kolumna * 25 + '%';
         });
+
+        var i=0;
+
+        // dopóki wszytkie bloki nie mają ustawionej szerokości
+        while (!bloki.every(blok => blok.szerokosc) && i<1000) {
+
+            i++;
+            
+            // przejdź przez wszytkie bloki, począwszy od przesuniętego najdalej na prawo
+            bloki.forEach(blok => {
+
+                // jeśl blok ma już ustaloną szerokość nie rób nic
+                if (blok.szerokosc) return;
+                
+                // jeśli żaden z lewych sąsiadów nie ma jeszcze ustalonej szerokości
+                if (!blok.bloki_po_lewej.every(bl => bl.szerokosc)) {
+                    var szerokosc = 100 / (blok.bloki_po_lewej.length + 1);
+                    blok.bloki_po_lewej.forEach(bl => {
+                        bl.szerokosc = szerokosc;
+                        bl.innerHTML = bl.szerokosc;
+                    });
+                    blok.szerokosc = szerokosc;
+                    blok.innerHTML = blok.szerokosc;
+                }
+
+                // jeśli blok nie ma jeszcze szerokości ale wszyscy sąsiedzi mają już ustaloną szerokość
+                else if (!blok.szerokosc && blok.sasiedzi.every(bs => bs.szerokosc)) {
+                    blok.szerokosc = 100 - blok.sasiedzi.reduce((suma, akt) => suma + akt.szerokosc, 0);
+                    blok.innerHTML = blok.szerokosc;
+                }
+            });
+        }
+
+        console.log(bloki.map(blok => `${blok.id}: ${blok.szerokosc}`));
     }
 
     // zwraca wynik testu na kolizję z innymi blokami: true = występuje kolizja
     sprawdzKolizjeZajec(blok, bloki) {
 
         // góra i dół analizowanego bloku - obliczenia jednokrotne
-        var id_1 = parseInt(blok.id.split('_')[2]);
         var gora_1 = parseInt(blok.style.top.slice(0,-2));
         var dol_1 = gora_1 + parseInt(blok.style.height.slice(0, -2));
 
@@ -603,7 +640,6 @@ class CKontrolerPodzialuGodzin {
         bloki.forEach(blok_porownywany => {
 
             // góra i dół bloku porównywanego
-            var id_2 = parseInt(blok_porownywany.id.split('_')[2]);
             var gora_2 = parseInt(blok_porownywany.style.top.slice(0,-2));
             var dol_2 = gora_2 + parseInt(blok_porownywany.style.height.slice(0, -2));
 
@@ -615,15 +651,15 @@ class CKontrolerPodzialuGodzin {
                 if (blok.kolumna == blok_porownywany.kolumna) {
                     
                     // zapamiętaj dla bloku blok porównywany jako lewego sąsiada (to on wypycha blok na prawo), to może się zmienić podczas dalszej iteracji
-                    blok.lewy = blok_porownywany;
+                    blok.bloki_po_lewej.push(blok_porownywany);
                     
                     // ustaw flagę kolizji
                     kolizja = true;
                 }
 
                 // dopisz obustronnie indeksy sąsiadów do listy
-                if (blok.sasiedzi.indexOf(id_2) == -1) blok.sasiedzi.push(id_2);
-                if (blok_porownywany.sasiedzi.indexOf(id_1) == -1) blok_porownywany.sasiedzi.push(id_1);
+                if (!blok.sasiedzi.find(s => s.id == blok_porownywany.id)) blok.sasiedzi.push(blok_porownywany);
+                if (!blok_porownywany.sasiedzi.find(s => s.id == blok.id)) blok_porownywany.sasiedzi.push(blok);
             }
         });
 
