@@ -570,7 +570,7 @@ class CKontrolerPodzialuGodzin {
 
         // założenie wstępne ustawienia bloku w pierwszej kolumnie
         bloki.forEach(blok => {
-            blok.kolumna = 0;
+            blok.kolumna = 1;
             blok.sasiedzi = [];
             blok.szerokosc = undefined;
         });
@@ -587,20 +587,58 @@ class CKontrolerPodzialuGodzin {
         // przejdź jeszcze raz przez bloki i ustaw ich atrybuty stylu
         bloki.forEach(blok => {
             // jeśli blok ma sąsiedów ustaw jego zredukowaną szerokość i przesuń na właściwą kolumnę
-            blok.style.left = blok.kolumna * 25 + '%';
+            blok.style.left = (blok.kolumna -1) * 25 + '%';
             blok.style.width = '25%';
         });
 
-        // przejdź przez wszytkie bloki, począwszy od przesuniętego najdalej na prawo
+        // zbuduj piramidy z wierzchołkiem po prawej, pomiń na razie bloki z pierwszego rzędu
         bloki.forEach(blok => {
+
+            // pomiń bloki w pierwszej kolumnie
+            if (blok.kolumna == 1) return;
             
             // odfiltruj tyko tych sąsiadów, którzy są na lewo
             var lewi_sasiedzi = blok.sasiedzi.filter(bs => bs.kolumna < blok.kolumna);
 
             // jeśli żaden z lewych sąsiadów nie ma jeszcze ustalonej szerokości
             if (lewi_sasiedzi.every(ls => !ls.szerokosc)) {
-                var szerokosc = 100 / (lewi_sasiedzi.length + 1);
+                var szerokosc = 100 / blok.kolumna;
                 this.ustawSzerkoscLewychSasiadow(blok, szerokosc);
+            }
+        });
+
+        // ustaw bloki nie występujące w głównej piramidzie (nie przyciśnięte wierzchołkiem od prawej)
+        bloki.forEach(blok => {
+
+            // identyfikacja bloków poza główną piramidą przez brak ustawienia szerokości
+            if (!blok.szerokosc) {
+                
+                // jeśli blok nie ma sąsiadów
+                if (!blok.sasiedzi.length) {
+
+                    // usawq jego szerokość na 100%
+                    blok.szerokosc = 100;
+                    blok.querySelector('.blok-przedmiot').innerHTML = '100';
+                }
+
+                // jeśli blok ma sąsiadów
+                else {
+
+                    // odfiltruj tylko lewych sąsiadów
+                    var kolumna_prawego = Math.max(...blok.sasiedzi.filter(s => s.kolumna > blok.kolumna).map(s => s.kolumna));
+                    var kolumna_lewego = Math.min(...blok.sasiedzi.filter(s => s.kolumna < blok.kolumna).map(s => s.kolumna));
+
+                    console.log('Kolumna prawgo: ', kolumna_lewego);
+                    console.log('Kolumna lewego: ', kolumna_prawego);
+                    console.log('Szerokość kolumny: ', blok.sasiedzi.find(s => s.szerokosc).szerokosc);
+
+                    // jeśli są prawi sąsiedzi
+                    // blok.szerokosc = 100 - prawi_sasiedzi.reduce((suma, akt) => suma + akt.szerokosc, 0) - lewi_sasiedzi.reduce((suma, akt) => suma + akt.szerokosc, 0);
+                    // if (lewi_sasiedzi.length) var kolumna_sasiada = Math.min(...lewi_sasiedzi.map(ls => ls.kolumna));
+                    // else var kolumna_sasiada = 5; // !!!! tytaj max kolumna
+                    // blok.szerokosc = kolumna_sasiada - blok.kolumna;
+                    blok.querySelector('.blok-przedmiot').innerHTML = blok.szerokosc;
+                }
             }
         });
     }
@@ -608,13 +646,13 @@ class CKontrolerPodzialuGodzin {
     // iteracyjnie ustawiania szerokości wszytkich lewych sąsiadów bloku
     ustawSzerkoscLewychSasiadow(blok, szerokosc) {
         blok.szerokosc = szerokosc;
-        blok.innerHTML = szerokosc;
+        blok.querySelector('.blok-przedmiot').innerHTML = szerokosc;
         // iteracyjnie powtórz dla sąsiadów
         blok.sasiedzi.forEach(s => {
             // tylko w lewą stronę - na niższych kolumnach
             if (s.kolumna < blok.kolumna && !s.szerokosc) {
                 s.szerokosc = szerokosc;
-                s.innerHTML = szerokosc;
+                s.querySelector('.blok-przedmiot').innerHTML = szerokosc;
                 this.ustawSzerkoscLewychSasiadow(s, szerokosc);
             }
         });

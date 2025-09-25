@@ -108,3 +108,7 @@
 - [ ] obliczyć szerokość liczoną w % dla wszystkich elementów należących do tego zgrupowania
 - [ ] obliczać szerokość kolejnych elementów poprzez odliczanie od 100 szerokości wszystkich sąsiadów, do czasu ustawienia wszystkoch szerokości
 - [ ] lub nie liczyć szerokości tylko położenie lewej krawędzi (poprzez łańcuch lewych) i prawej
+
+# 25.09.2025
+- [ ] dla bloków nie przynależnych do grupy oblicza≥ć szerokość poprzez iloczyn szerokości dowolnego sąsiada i liczby kolumn, które wypełnia blok
+- [ ] zapamiętaj szerokości kolumn
