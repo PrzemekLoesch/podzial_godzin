@@ -110,5 +110,5 @@
 - [ ] lub nie liczyć szerokości tylko położenie lewej krawędzi (poprzez łańcuch lewych) i prawej
 
 # 25.09.2025
-- [ ] dla bloków nie przynależnych do grupy oblicza≥ć szerokość poprzez iloczyn szerokości dowolnego sąsiada i liczby kolumn, które wypełnia blok
+- [ ] dla bloków nie przynależnych do grupy obliczać szerokość do prawych ograniczających, a ich szerokość z sumy szerokości lewych
 - [ ] zapamiętaj szerokości kolumn

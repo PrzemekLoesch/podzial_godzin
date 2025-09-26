@@ -573,7 +573,6 @@ class CKontrolerPodzialuGodzin {
             blok.kolumna = 1;
             blok.sasiedzi = [];
             blok.szerokosc = undefined;
-            blok.lewy = undefined;
         });
 
         // przejdź przez wszytkie bloki
@@ -587,30 +586,33 @@ class CKontrolerPodzialuGodzin {
 
         // przejdź jeszcze raz przez bloki i ustaw ich atrybuty stylu
         bloki.forEach(blok => {
-            // jeśli blok ma sąsiedów ustaw jego zredukowaną szerokość i przesuń na właściwą kolumnę
-            blok.style.left = (blok.kolumna -1) * 25 + '%';
-            blok.style.width = '25%';
-        });
-
-        // budowa piramid z wierzchołkiem po prawej i ustawieniem szerokości wszytkich bloków pod wierzchołkiem i na wierzchołakch sąsiednich oraz bloków be sąsiadów
-        bloki.forEach(blok => {
-
             // jeśli blok nie ma sąsiadów jego szerokość to 100%
             if (!blok.sasiedzi.length) {
                 blok.szerokosc = 100;
                 blok.querySelector('.blok-przedmiot').innerHTML = blok.szerokosc;
                 return;
             }
+            // !!!!!!!!!! temp
+            else {
+                // jeśli blok ma sąsiedów ustaw jego zredukowaną szerokość i przesuń na właściwą kolumnę
+                blok.style.left = (blok.kolumna -1) * 25 + '%';
+                blok.style.width = '25%';
+            }
+        });
 
-            // odfiltruj tyko tych sąsiadów, którzy są na lewo
-            var lewi_sasiedzi = blok.sasiedzi.filter(sasiad => sasiad.kolumna < blok.kolumna);
+        // budowa piramid z wierzchołkiem po prawej i ustawieniem szerokości wszytkich bloków pod wierzchołkiem i na wierzchołakch sąsiednich oraz bloków be sąsiadów
+        bloki.forEach(blok => {
+
+            // odfiltruj tylko lewych sąsiadów
+            var lewi = blok.sasiedzi.filter(sasiad => sasiad.kolumna < blok.kolumna);
 
             // jeśli żaden z lewych sąsiadów nie ma jeszcze ustalonej szerokości
-            if (lewi_sasiedzi.length && lewi_sasiedzi.every(ls => !ls.szerokosc)) {
+            if (lewi.length && lewi.every(sasiad => !sasiad.szerokosc)) {
                 var szerokosc = 100 / blok.kolumna;
                 this.ustawSzerkoscLewychSasiadow(blok, szerokosc);
             }
 
+            /*
             // jeśli blok nie ma jeszcze ustawionej szerokości i nie jest położony w pierwszej kolumnie, musi należeć do innego, niższego lub równego wierzchołka
             else if (blok.kolumna != 1 && !blok.szerokosc) {
                 var szerokosc_lewych = 0;
@@ -622,27 +624,31 @@ class CKontrolerPodzialuGodzin {
                 blok.szerokosc = 100 - szerokosc_lewych;
                 blok.querySelector('.blok-przedmiot').innerHTML = blok.szerokosc;
             }
+                */
         });
 
-        // zostały tylko bloki bez lewych sąsiadów, ale ograniczone z prawej strony
+        // ustaw ostateczne parametry
         bloki.forEach(blok => {
-            // znajdź prawego sąsiada położonego najbliżej bloku
-            var kolumna_prawego = Math.min(...blok.sasiedzi.filter(sasiad => sasiad.kolumna > blok.kolumna).map(sasiad => sasiad.kolumna));
+            if (blok.szerokosc) blok.style.width = `${blok.szerokosc}%`;
         });
     }
 
     // iteracyjnie ustawiania szerokości wszytkich lewych sąsiadów bloku
     ustawSzerkoscLewychSasiadow(blok, szerokosc) {
+        
+        // ustaw dla tego bloku
         blok.szerokosc = szerokosc;
         blok.querySelector('.blok-przedmiot').innerHTML = szerokosc;
-        // iteracyjnie powtórz dla sąsiadów
-        blok.sasiedzi.forEach(s => {
-            // tylko w lewą stronę - na niższych kolumnach
-            if (s.kolumna < blok.kolumna && !s.szerokosc) {
-                s.szerokosc = szerokosc;
-                s.querySelector('.blok-przedmiot').innerHTML = szerokosc;
-                this.ustawSzerkoscLewychSasiadow(s, szerokosc);
-            }
+
+        // odfiltruj tylko lewych sąsiadów
+        var lewi = blok.sasiedzi.filter(sasiad => sasiad.kolumna < blok.kolumna);
+
+        // iteracyjnie powtórz dla sąsiadów al tylko tych, którzy nie mają jeszcze ustawionej szerokości
+        lewi.forEach(sasiad => {
+            if (sasiad.szerokosc) return;
+            sasiad.szerokosc = szerokosc;
+            sasiad.querySelector('.blok-przedmiot').innerHTML = szerokosc;
+            this.ustawSzerkoscLewychSasiadow(sasiad, szerokosc);
         });
     }
 
@@ -651,7 +657,6 @@ class CKontrolerPodzialuGodzin {
 
         // góra i dół analizowanego bloku - obliczenia jednokrotne
         var gora_1 = parseInt(blok.style.top.slice(0,-2));
-        var dol_1 = gora_1 + parseInt(blok.style.height.slice(0, -2));
 
         // założenie wstępne
         var kolizja = false;
@@ -665,14 +670,12 @@ class CKontrolerPodzialuGodzin {
 
             // jeśli porównywany blok zaczyna się powyżej a kończy poniżej początku tego drugiego lub
             // jeśli porównywany blok zaczyna się poniżej początku i powyżej końca tego drugiego to znaczy, że zachodzą na siebie
-            if ((gora_2 <= gora_1 && dol_2 > gora_1) || (gora_2 >= gora_1 && dol_1 > gora_2)) {
+            if (gora_2 <= gora_1 && dol_2 > gora_1) {
                 
                 // jeśli bloki zachodzące na siebie wysokością są w tej samej kolumnie - występuja kolizja
                 if (blok.kolumna == blok_porownywany.kolumna) {
-                    
                     // ustaw flagę kolizji
                     kolizja = true;
-                    blok.lewy = blok_porownywany;
                 }
 
                 // dopisz obustronnie indeksy sąsiadów do listy
