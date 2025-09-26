@@ -565,71 +565,53 @@ class CKontrolerPodzialuGodzin {
 
         if (!bloki.length) return;
 
-        // posortuj bloki od najwyżej położonego
+        // posortuj bloki - od najwyżej położonego
         bloki.sort((a, b) => parseInt(a.style.top.slice(0, -2)) - parseInt(b.style.top.slice(0, -2)));
-
-        // założenie wstępne ustawienia bloku w pierwszej kolumnie
-        bloki.forEach(blok => {
-            blok.kolumna = 1;
-            blok.sasiedzi = [];
-            blok.szerokosc = undefined;
-        });
 
         // przejdź przez wszytkie bloki
         bloki.forEach((blok, i) => {
+
+            // założenia wstępne - ustawienia bloku w pierwszej kolumnie, wyzerowanie atrybutów
+            blok.kolumna = 1;
+            blok.sasiedzi = [];
+            blok.szerokosc = undefined;
+            blok.style.left = '0px';
+
             // przesuwaj o jedną kolumę dopóki występuje kolizja z innymi blokami zajęć już rozstawionymi (do obecnego indeksu)
-            while (this.sprawdzKolizjeZajec(blok, bloki.slice(0, i))) blok.kolumna ++;
+            while (this.sprawdzKolizjeZajec(blok, bloki.slice(0, i))) blok.kolumna++;
         });
 
         // posortuj bloki - najpierw te posiadające największą liczbę przesunięć na prawo (lewych sąsiadów)
         bloki = bloki.sort((a, b) => b.kolumna - a.kolumna);
 
-        // przejdź jeszcze raz przez bloki i ustaw ich atrybuty stylu
-        bloki.forEach(blok => {
-            // jeśli blok nie ma sąsiadów jego szerokość to 100%
-            if (!blok.sasiedzi.length) {
-                blok.szerokosc = 100;
-                blok.querySelector('.blok-przedmiot').innerHTML = blok.szerokosc;
-                return;
-            }
-            // !!!!!!!!!! temp
-            else {
-                // jeśli blok ma sąsiedów ustaw jego zredukowaną szerokość i przesuń na właściwą kolumnę
-                blok.style.left = (blok.kolumna -1) * 25 + '%';
-                blok.style.width = '25%';
-            }
-        });
-
         // budowa piramid z wierzchołkiem po prawej i ustawieniem szerokości wszytkich bloków pod wierzchołkiem i na wierzchołakch sąsiednich oraz bloków be sąsiadów
         bloki.forEach(blok => {
 
-            // odfiltruj tylko lewych sąsiadów
-            var lewi = blok.sasiedzi.filter(sasiad => sasiad.kolumna < blok.kolumna);
+            // blok bez sąsiadów zajmuje zawsze 100% szerokości
+            if (blok.sasiedzi.length == 0) blok.szerokosc = 100;
 
-            // jeśli żaden z lewych sąsiadów nie ma jeszcze ustalonej szerokości
-            if (lewi.length && lewi.every(sasiad => !sasiad.szerokosc)) {
+            // jeśli są sąsiedzi po lewej, ale żaden z nich nie ma jeszcze ustawionej szerokości - główna piramida
+            else if (blok.kolumna > 1 && blok.sasiedzi.every(sasiad => !sasiad.szerokosc)) {
                 var szerokosc = 100 / blok.kolumna;
                 this.ustawSzerkoscLewychSasiadow(blok, szerokosc);
             }
 
-            /*
-            // jeśli blok nie ma jeszcze ustawionej szerokości i nie jest położony w pierwszej kolumnie, musi należeć do innego, niższego lub równego wierzchołka
-            else if (blok.kolumna != 1 && !blok.szerokosc) {
-                var szerokosc_lewych = 0;
-                var lewy = blok.lewy;
-                while (lewy) {
-                    szerokosc_lewych += lewy.szerokosc;
-                    lewy = lewy.lewy;
-                }
-                blok.szerokosc = 100 - szerokosc_lewych;
-                blok.querySelector('.blok-przedmiot').innerHTML = blok.szerokosc;
+            // są sąsiedzi, ale niektórzy z nich mają już ustawioną szerokość
+            else {
+
             }
-                */
         });
 
-        // ustaw ostateczne parametry
+        // przejdź jeszcze raz przez bloki i ustaw ich atrybuty stylu
         bloki.forEach(blok => {
-            if (blok.szerokosc) blok.style.width = `${blok.szerokosc}%`;
+            if (blok.szerokosc) {
+                blok.style.width = `${blok.szerokosc}%`;
+                blok.querySelector('.blok-przedmiot').innerHTML = blok.szerokosc;
+            }
+            var left = 0;
+            
+        
+            blok.style.left = 
         });
     }
 
@@ -640,8 +622,8 @@ class CKontrolerPodzialuGodzin {
         blok.szerokosc = szerokosc;
         blok.querySelector('.blok-przedmiot').innerHTML = szerokosc;
 
-        // odfiltruj tylko lewych sąsiadów
-        var lewi = blok.sasiedzi.filter(sasiad => sasiad.kolumna < blok.kolumna);
+        // odfiltruj tylko bezpośrednich lewych sąsiadów
+        var lewi = blok.sasiedzi.filter(sasiad => sasiad.kolumna == (blok.kolumna -1));
 
         // iteracyjnie powtórz dla sąsiadów al tylko tych, którzy nie mają jeszcze ustawionej szerokości
         lewi.forEach(sasiad => {
