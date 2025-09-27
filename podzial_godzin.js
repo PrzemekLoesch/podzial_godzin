@@ -588,7 +588,9 @@ class CKontrolerPodzialuGodzin {
         bloki.forEach(blok => {
 
             // blok bez sąsiadów zajmuje zawsze 100% szerokości
-            if (blok.sasiedzi.length == 0) blok.szerokosc = 100;
+            if (blok.sasiedzi.length == 0) {
+                blok.szerokosc = 100;
+            }
 
             // jeśli są sąsiedzi po lewej, ale żaden z nich nie ma jeszcze ustawionej szerokości - główna piramida
             else if (blok.kolumna > 1 && blok.sasiedzi.every(sasiad => !sasiad.szerokosc)) {
@@ -596,10 +598,13 @@ class CKontrolerPodzialuGodzin {
                 this.ustawSzerkoscLewychSasiadow(blok, szerokosc);
             }
 
-            // są sąsiedzi, ale niektórzy z nich mają już ustawioną szerokość
-            else {
-
+            // są sąsiedzi, ale niektórzy z nich mają już ustawioną szerokość - 
+            /*else {
+                // odejmij szerokość sąsiadów z ustawioną szerokością a resztę podziel pomiędzy sąsiadów bez ustawionej szerokości
+                var liczba_sasiadow_bez_szerokosci = 0;
+                var lewy = blok.sasiedzi.filter(sasiad => sasiad.kolumna < blok.kolumna)
             }
+            */
         });
 
         // przejdź jeszcze raz przez bloki i ustaw ich atrybuty stylu
@@ -619,18 +624,18 @@ class CKontrolerPodzialuGodzin {
            
             // ustaw położenie lewej krawędzi
             while (lewy_sasiad) {
-                left += lewy_sasiad.szerokosc;
+                if (lewy_sasiad.szerokosc) left += lewy_sasiad.szerokosc;
                 lewy_sasiad = lewy_sasiad.sasiedzi.filter(sasiad => sasiad.kolumna == (lewy_sasiad.kolumna - 1)).sort((a, b) => b.szerokosc - a.szerokosc)[0];
             }
 
-            // 
+            // ustaw położenie lewej krawędzi
             blok.style.left = `${left}%`;
         });
     }
 
     // iteracyjnie ustawiania szerokości wszytkich lewych sąsiadów bloku
     ustawSzerkoscLewychSasiadow(blok, szerokosc) {
-        
+
         // ustaw dla tego bloku
         blok.szerokosc = szerokosc;
         blok.querySelector('.blok-przedmiot').innerHTML = szerokosc;

@@ -172,7 +172,6 @@ button {
 }
 
 .blok-zajec {
-    width: 20%;
     border: 1px solid gray;
     z-index: 2;
     position: absolute;
