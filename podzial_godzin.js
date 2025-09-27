@@ -604,14 +604,27 @@ class CKontrolerPodzialuGodzin {
 
         // przejdź jeszcze raz przez bloki i ustaw ich atrybuty stylu
         bloki.forEach(blok => {
+            
+            // ustaw szerokość bloku
             if (blok.szerokosc) {
                 blok.style.width = `${blok.szerokosc}%`;
                 blok.querySelector('.blok-przedmiot').innerHTML = blok.szerokosc;
             }
-            var left = 0;
             
-        
-            blok.style.left = 
+            // początkowe położenie przy lewej krawędzi
+            var left = 0;
+
+            // lewy bezpośredni sąsiad o największej szerokości
+            var lewy_sasiad = blok.sasiedzi.filter(sasiad => sasiad.kolumna == (blok.kolumna - 1)).sort((a, b) => b.szerokosc - a.szerokosc)[0];
+           
+            // ustaw położenie lewej krawędzi
+            while (lewy_sasiad) {
+                left += lewy_sasiad.szerokosc;
+                lewy_sasiad = lewy_sasiad.sasiedzi.filter(sasiad => sasiad.kolumna == (lewy_sasiad.kolumna - 1)).sort((a, b) => b.szerokosc - a.szerokosc)[0];
+            }
+
+            // 
+            blok.style.left = `${left}%`;
         });
     }
 
