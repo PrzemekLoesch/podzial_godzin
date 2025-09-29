@@ -21,10 +21,13 @@ class CKontrolerPodzialuGodzin {
         // dodaj dla każdego elementu planu dnia event wjechania kursorem - do przeoszenia zajęć
         Array.from(kalendarz.querySelectorAll('.plan-dnia')).forEach(plan_dnia => plan_dnia.addEventListener('mouseenter', e => this.obsluzMouseEnter(e)));
 
-        // zapis pliku danych
+        // pobranie json z danymi
+        document.getElementById('zapisz_dane').addEventListener('click', () => this.zapiszDaneNaSerwerze());
+
+        // pobranie json z danymi
         document.getElementById('pobierz_dane').addEventListener('click', () => this.pobierzPlikDanych());
 
-        // odczyt danych z pliku
+        // wysłanie json z danymi
         document.getElementById('wczytaj_dane').addEventListener('click', () => document.getElementById('zrodlo_danych').click());
 
         // wczytanie plku
@@ -245,6 +248,58 @@ class CKontrolerPodzialuGodzin {
         }
     }
 
+    // wysłanie danych podziału godzin do zapisu na serwer
+    async zapiszDaneNaSerwerze() {
+
+        // odczytaj ew. klucz obecnie edytowanych danych
+        var klucz = document.getElementById('link').innerHTML.split('=')[1];
+
+        // budowa zapytania
+        var response = await fetch('/obsluga_danych.php', {
+            method: 'post', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                dane: JSON.stringify(this.dane),
+                klucz: klucz,
+                zapisz: true
+            })
+        });
+
+        // poczekaj na wynik
+        var wynik = await response.json();
+
+        // jeśli nowy rekord - odczytaj klucz
+        klucz = klucz || wynik.klucz;
+        
+        // podaj link do późniejszego odczytania podziału godzin
+        document.getElementById('link').innerHTML = `http://podzialgodzin.pl/?id=${klucz}`;
+    };
+
+    // pobranie danych istniejącego podziału godzin zapisanego na serwerze
+    async pobierzDaneZSerwera(klucz) {
+
+        // budowa zapytania
+        var response = await fetch('/obsluga_danych.php', {
+            method: 'post', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                klucz: klucz,
+                pobierz: true
+            })
+        });
+
+        // odpowiedź - klucz zapisanego rekordu
+        var dane = await response.json();
+
+        // jeśli zwrócono dane
+        if (dane.dane) {
+            this.odtworzWidokzDanych(JSON.parse(dane.dane));
+            document.getElementById('link').innerHTML = `http://podzialgodzin.pl/?id=${klucz}`;
+        }
+
+        // brak danych - wyczyść link
+        else document.getElementById('link').innerHTML = '';
+    }
+
+    // wygenrowanie pliku do pobrania przez użytkownika
     async pobierzPlikDanych() {
 
         // blob z danymi
@@ -287,23 +342,25 @@ class CKontrolerPodzialuGodzin {
         // wyczyść obiekty, listy i wodok kalendarza
         this.resetujDane();
         
+        // przebieg po wszystkich danych oprócz zajęć
         Object.keys(dane).forEach(nazwa_danych => {
-            
-            // tworzenie bloków zajęć
-            if (nazwa_danych == 'zajecia') {
-                Object.keys(dane.zajecia.rekordy).forEach(id => this.zapiszZajecia(id, dane.zajecia.rekordy[id]));
-            }
 
-            // tworzenie list rekordów
-            else {
-                document.getElementById(`lista_${nazwa_danych}`).innerHTML = '';
-                Object.keys(dane[nazwa_danych].rekordy).forEach(id => this.zapiszDane(nazwa_danych, id, dane[nazwa_danych].rekordy[id]));
-                this.dane[nazwa_danych].wolne_id = dane[nazwa_danych].wolne_id;
-            }
+            // zajęcia dopiero po odtworzeniu innych danych
+            if (nazwa_danych == 'zajecia') return;
+
+            // dane inne niż zajęcia
+            document.getElementById(`lista_${nazwa_danych}`).innerHTML = '';
+            Object.keys(dane[nazwa_danych].rekordy).forEach(id => this.zapiszDane(nazwa_danych, id, dane[nazwa_danych].rekordy[id]));
+            this.dane[nazwa_danych].wolne_id = dane[nazwa_danych].wolne_id;
 
             // ustawienie wolnego id dla każdej grupy danych
             this.dane[nazwa_danych].wolne_id = dane[nazwa_danych].wolne_id;
         });
+
+        // teraz zajęcia
+        Object.keys(dane.zajecia.rekordy).forEach(id => this.zapiszZajecia(id, dane.zajecia.rekordy[id]));
+        // ustawienie wolnego id dla każdej grupy danych
+        this.dane.zajecia.wolne_id = dane.zajecia.wolne_id || 1;
     }
 
     // odczytuje wartość wybranej opcji z widgetu select
@@ -613,7 +670,7 @@ class CKontrolerPodzialuGodzin {
             // ustaw szerokość bloku
             if (blok.szerokosc) {
                 blok.style.width = `${blok.szerokosc}%`;
-                blok.querySelector('.blok-przedmiot').innerHTML = blok.szerokosc;
+                // blok.querySelector('.blok-przedmiot').innerHTML = blok.szerokosc;
             }
             
             // początkowe położenie przy lewej krawędzi
@@ -638,7 +695,7 @@ class CKontrolerPodzialuGodzin {
 
         // ustaw dla tego bloku
         blok.szerokosc = szerokosc;
-        blok.querySelector('.blok-przedmiot').innerHTML = szerokosc;
+        // blok.querySelector('.blok-przedmiot').innerHTML = szerokosc;
 
         // odfiltruj tylko bezpośrednich lewych sąsiadów
         var lewi = blok.sasiedzi.filter(sasiad => sasiad.kolumna == (blok.kolumna -1));
@@ -647,7 +704,7 @@ class CKontrolerPodzialuGodzin {
         lewi.forEach(sasiad => {
             if (sasiad.szerokosc) return;
             sasiad.szerokosc = szerokosc;
-            sasiad.querySelector('.blok-przedmiot').innerHTML = szerokosc;
+            // sasiad.querySelector('.blok-przedmiot').innerHTML = szerokosc;
             this.ustawSzerkoscLewychSasiadow(sasiad, szerokosc);
         });
     }
@@ -690,3 +747,8 @@ class CKontrolerPodzialuGodzin {
 }
 
 var kontroler = new CKontrolerPodzialuGodzin();
+
+const parametry = window.location.search;
+const sp = new URLSearchParams(parametry);
+const id = sp.get('id');
+if (id) kontroler.pobierzDaneZSerwera(id);

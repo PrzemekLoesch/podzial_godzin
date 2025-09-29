@@ -103,12 +103,23 @@
 - [x] zmiana opisu wszystkich bloków zajęć po zmienie wartości rekordów
 
 # 22.09.2025
-- [ ] przechowywać w tablicy sąsiedzi nie indeksy lecz wskaźniki elementów (łatwiejszy dostęp do atrybutów sąsiada)
-- [ ] znaleźć największe zgrupowanie elementów (najdłuższa ścieżka - łańcuch połączeń przez atrybut 'lewy')
-- [ ] obliczyć szerokość liczoną w % dla wszystkich elementów należących do tego zgrupowania
+- [x] przechowywać w tablicy sąsiedzi nie indeksy lecz wskaźniki elementów (łatwiejszy dostęp do atrybutów sąsiada)
+- [x] znaleźć największe zgrupowanie elementów (najdłuższa ścieżka - łańcuch połączeń przez atrybut 'lewy')
+- [x] obliczyć szerokość liczoną w % dla wszystkich elementów należących do tego zgrupowania
 - [ ] obliczać szerokość kolejnych elementów poprzez odliczanie od 100 szerokości wszystkich sąsiadów, do czasu ustawienia wszystkoch szerokości
 - [ ] lub nie liczyć szerokości tylko położenie lewej krawędzi (poprzez łańcuch lewych) i prawej
 
 # 25.09.2025
 - [ ] dla bloków nie przynależnych do grupy obliczać szerokość do prawych ograniczających, a ich szerokość z sumy szerokości lewych
 - [ ] zapamiętaj szerokości kolumn
+
+# 27.09.2025
+- [x] zapisywać plik json po stronie serwera i generować link do podziału godzin użytkownika
+- [x] wczytywać plik z serwera po otwarciu linku - odczytywać przez js dane adresu i ładować plik
+
+# 28.09.2025
+- [x] utworzyć na serwerze plik php do testowania zapisu plików lub tworzenia rekordów bazy danych sql
+- [x] generować losowy klucz o 6 znakach w PHP
+- [ ] przy zapisie istniejącego podziału godzin pytać czy nadpisać czy zapisać jako nowy
+- [ ] umożliwić edycję i zapis danych podziału godzin - nazwa, czas obowiązywania
+- [ ] pokazywać dane historyczne - kiedy utworzono i kiedy edytowano
